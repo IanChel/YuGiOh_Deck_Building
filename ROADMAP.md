@@ -18,15 +18,17 @@
 - [ ] Phase 9 — Déploiement
 - [ ] Phase 10 — Fonctionnalités avancées
 
+> **État de transition :** Phase 0 techniquement validée ; clarification juridique D-008 restante avant publication/distribution. La Phase 0 reste décochée jusqu'à la levée de ce jalon de conformité. La planification détaillée de la Phase 1 est terminée, mais aucune implémentation n'a commencé.
+
 ## Current Status
 
 | Élément | État |
 |---|---|
-| Phase actuelle | **Phase 0 — Conception** |
-| Tâche en cours | Revue et validation par le porteur du projet de la spécification candidate de Phase 0 |
-| Prochaine tâche | Approuver ou amender les décisions bloquantes D-001 à D-008 |
-| Blocages | Format TCG Advanced EMEA, source YGOPRODeck + Konami, langue canonique, cinq archétypes pilotes, stack et budget LLM proposés mais non approuvés |
-| Décisions récentes | Spécification candidate produite ; recommandation d'une architecture multi-format avec uniquement TCG Advanced EMEA implémenté au MVP ; aucune de ces recommandations n'est encore considérée comme validée |
+| Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
+| Tâche en cours | Finaliser les prérequis documentaires et décisions de contenu de la Phase 1 |
+| Prochaine tâche | Sélectionner et valider les archétypes pilotes du MVP selon les critères documentés |
+| Blocages | D-008 juridique bloque toute publication/distribution ; la sélection des archétypes pilotes bloque leur annotation, mais pas la modélisation ni l'import exploratoire local |
+| Décisions récentes | D-001 à D-007 acceptées et consignées en ADR ; TCG Advanced EMEA, snapshots immuables, YGOPRODeck répliqué localement, UI française, périmètre MVP et stack monolithique validés |
 
 ### Règles de mise à jour
 
@@ -249,9 +251,9 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 
 ---
 
-## 6. Spécification candidate de Phase 0 — à valider
+## 6. Spécification de Phase 0
 
-> Cette section constitue une proposition suffisamment précise pour démarrer après approbation. Les recommandations ne sont pas des décisions validées. Les points nécessitant une décision explicite sont répertoriés en section 10.
+> Les décisions D-001 à D-007 de cette section sont acceptées et consignées dans `docs/adr/`. Les choix encore ouverts sont identifiés dans la section 10. D-008 reste proposée et doit être clarifiée avant publication/distribution.
 
 ### 6.1 Fonctionnalités classées par priorité
 
@@ -284,7 +286,7 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 | Réseau social/marketplace | **À ne pas prévoir maintenant** | Hors proposition de valeur initiale |
 | Application mobile native | **À ne pas prévoir maintenant** | Web responsive suffisant pour tester la valeur |
 
-#### Contrat fonctionnel du MVP proposé
+#### Contrat fonctionnel du MVP validé
 
 1. L'utilisateur choisit l'un des archétypes pilotes ou part d'une liste existante.
 2. Il ajoute des cartes obligatoires, interdit certaines cartes et peut formuler une intention libre courte.
@@ -296,7 +298,7 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 8. Le LLM explique les résultats structurés sans ajouter de carte ni modifier la liste.
 9. L'utilisateur exporte le deck ; aucun compte n'est requis au MVP et le brouillon peut être conservé localement.
 
-#### Définition proposée d'un résultat MVP acceptable
+#### Définition validée d'un résultat MVP acceptable
 
 - La decklist est légale pour le snapshot de format affiché.
 - Toutes les cartes et tous les faits cités existent dans le catalogue local.
@@ -314,7 +316,7 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 | **C — Plusieurs formats dès le MVP** | Valeur immédiate pour plusieurs publics ; modèle testé tôt | Multiplie règles, imports, snapshots, tests, UX et maintenance avant validation produit | Rejeté pour le MVP |
 | **D — Architecture multi-format, un format implémenté** | Maintient le MVP petit ; force des frontières propres ; facilite TCG/OCG/Master Duel/historique plus tard | Exige une abstraction minimale et discipline pour ne pas surconcevoir | **Recommandé** |
 
-#### Recommandation précise à approuver
+#### Décision de format validée
 
 - Architecture **Option D**, avec un contrat `FormatRules` versionné et des données séparées des règles.
 - Seul adaptateur MVP : **TCG Advanced, territoire EMEA**, parties en match, banlist officielle applicable à la date du snapshot.
@@ -385,7 +387,7 @@ Entrée formulaire ou langage naturel
 - Mode dégradé sans LLM : formulaire, génération, validation et analyse chiffrée restent utilisables.
 - Aucun RAG sémantique ni base vectorielle au MVP : requêtes SQL, recherche textuelle et relations structurées suffisent. Un RAG ne sera étudié que pour un corpus de rulings sourcé devenu nécessaire.
 
-### 6.5 Modèle conceptuel proposé
+### 6.5 Modèle conceptuel validé
 
 | Entité | Rôle et données principales | Relations |
 |---|---|---|
@@ -407,7 +409,7 @@ Entrée formulaire ou langage naturel
 
 Principes : deck et version sont séparés pour rendre une analyse reproductible ; banlists et snapshots sont immuables ; les annotations stratégiques ne sont jamais mélangées aux faits officiels ; `User` et `Matchup` restent modélisés mais ne doivent pas imposer leur implémentation au MVP.
 
-### 6.6 Stratégie de sources de données proposée
+### 6.6 Stratégie de sources de données validée sous réserve de D-008
 
 | Donnée | Source candidate | Stockage local | Mise à jour proposée | Risques / décision |
 |---|---|---|---|---|
@@ -428,7 +430,7 @@ Liens de référence candidats :
 - Légalité des cartes EMEA : <https://www.yugioh-card.com/eu/play/card-legality/>
 - Ressources de jeu KONAMI : <https://www.yugioh-card.com/eu/play/>
 
-### 6.7 Stack technique candidate
+### 6.7 Stack technique validée
 
 | Couche | Choix recommandé | Portée et justification |
 |---|---|---|
@@ -505,8 +507,8 @@ Liens de référence candidats :
 - [x] Rédiger une spécification candidate détaillée du MVP avec inclusions, reports et exclusions.
 - [x] Définir le contrat fonctionnel candidat et la définition d'un résultat acceptable.
 - [ ] Valider les personas prioritaires et leurs problèmes principaux.
-- [ ] Valider le parcours principal : sélectionner, construire, éditer, valider, analyser et exporter.
-- [ ] Valider le périmètre inclus, différé et explicitement exclu du MVP.
+- [x] Valider le parcours principal : sélectionner, construire, éditer, valider, analyser et exporter.
+- [x] Valider le périmètre inclus, différé et explicitement exclu du MVP.
 - [ ] Définir les indicateurs de succès du MVP : activation, deck valide obtenu, délai de génération, taux d'erreurs et satisfaction.
 - [ ] Définir les exigences non fonctionnelles : disponibilité, latence, accessibilité, confidentialité et navigateurs pris en charge.
 - [ ] Rédiger les user stories prioritaires avec critères d'acceptation observables.
@@ -515,11 +517,11 @@ Liens de référence candidats :
 
 - [x] Comparer TCG actuel, Master Duel, multi-format immédiat et architecture multi-format progressive.
 - [x] Documenter la recommandation Option D : architecture multi-format, TCG Advanced EMEA seul au MVP.
-- [ ] Choisir un unique format cible pour le MVP.
-- [ ] Choisir la région, la langue canonique et les langues d'affichage.
-- [ ] Définir précisément les limites Main/Extra/Side du format retenu.
-- [ ] Définir la politique de date et de version de banlist.
-- [ ] Définir ce que signifie « compatible » ou « synergique » dans le MVP.
+- [x] Choisir un unique format cible pour le MVP : TCG Advanced EMEA.
+- [x] Choisir la région, la langue canonique et les langues d'affichage : EMEA, anglais canonique, interface française.
+- [x] Définir précisément les limites Main/Extra/Side du format retenu.
+- [x] Définir la politique de date et de version de banlist : snapshots officiels datés, versionnés et immuables.
+- [x] Limiter la notion de synergie aux relations explicitement connues et présentes dans les données.
 - [ ] Définir les catégories fonctionnelles utilisées par l'analyse.
 - [ ] Lister les interactions/rulings hors périmètre et la manière de les signaler.
 - [ ] Choisir cinq archétypes pilotes représentatifs pour la génération et les golden tests.
@@ -528,7 +530,7 @@ Liens de référence candidats :
 
 - [x] Comparer les sources candidates de cartes, images, banlists, règles, rôles et statistiques.
 - [x] Documenter YGOPRODeck comme source opérationnelle candidate et KONAMI comme source officielle de banlist/règles.
-- [ ] Sélectionner la source primaire et une stratégie de repli.
+- [x] Sélectionner YGOPRODeck comme source opérationnelle primaire du catalogue et KONAMI comme référence officielle des règles, banlists et légalité.
 - [ ] Vérifier les licences, règles d'attribution, droits sur les images et marques.
 - [ ] Documenter la politique de conservation, rafraîchissement et suppression des données externes.
 - [ ] Définir les mentions légales et avertissements nécessaires.
@@ -543,23 +545,25 @@ Liens de référence candidats :
 - [x] Définir un modèle conceptuel candidat et ses principales relations.
 - [x] Proposer la stack complète, l'architecture logique et les responsabilités des modules.
 - [x] Classer les décisions restantes par niveau de blocage.
-- [ ] Valider le monolithe modulaire, la stack et la structure cible du repository.
+- [x] Valider le monolithe modulaire et la stack Next.js/TypeScript, Python/FastAPI et PostgreSQL.
 - [ ] Choisir le fournisseur LLM, le modèle initial, le budget et les limites d'usage.
 - [ ] Choisir l'hébergement, la région des données et les environnements.
 - [ ] Écrire les ADR pour les décisions irréversibles ou coûteuses à modifier.
 - [ ] Définir conventions Git, revue, versionnement, secrets et dépendances.
 - [ ] Prioriser le backlog et attribuer dépendances, risques et critères de sortie.
 - [ ] Valider l'absence de RAG/vector database au MVP et les conditions de réévaluation.
-- [ ] Valider le format YDK comme format d'import/export initial.
+- [x] Valider le format YDK comme format d'import/export initial.
+- [x] Créer les ADR D-001 à D-007 avec statut `Accepted`.
+- [x] Créer l'ADR D-008 avec statut `Proposed`.
 
 ### Critères de sortie de la phase 0
 
-- [ ] Le MVP et ses exclusions sont approuvés par le porteur du projet.
-- [ ] Format, banlist, source de données, périmètre MVP et stack sont explicitement approuvés.
+- [x] Le MVP et ses exclusions sont approuvés par le porteur du projet.
+- [x] Format, banlist, source de données, périmètre MVP et stack sont explicitement approuvés.
 - [ ] Les risques juridiques bloquants ont une réponse acceptable.
 - [ ] Les user stories MVP ont des critères d'acceptation testables.
-- [ ] Les ADR structurantes et le modèle conceptuel sont documentés.
-- [ ] La séparation LLM/algorithme/règles et le pipeline sont approuvés.
+- [x] Les ADR structurantes et le modèle conceptuel sont documentés.
+- [x] La séparation LLM/algorithme/règles et le pipeline sont approuvés.
 - [ ] Les archétypes pilotes et le golden set initial sont définis.
 - [ ] Les objectifs de performance, qualité, coût et accessibilité sont chiffrés.
 - [ ] Toutes les décisions 🔴 sont prises et aucune inconnue bloquante ne subsiste.
@@ -570,49 +574,151 @@ Liens de référence candidats :
 
 **Objectif :** disposer d'un catalogue local fiable, versionné et interrogeable.
 
-**Dépendances :** décisions de format, source et licence de la phase 0.
+**Dépendances :** ADR-0001 à ADR-0007 ; D-008 n'empêche que les contenus concernés et toute publication/distribution. La sélection des archétypes pilotes est requise avant leur annotation, pas avant le schéma générique du catalogue.
 
-**Résultat attendu :** snapshot reproductible de cartes et d'une banlist, avec rapport d'intégrité.
+**Résultat attendu :** un snapshot PostgreSQL reproductible et immuable du catalogue TCG utile au MVP et un snapshot de banlist TCG Advanced EMEA, chacun avec provenance, version, rapport d'intégrité et procédure contrôlée de publication/rollback.
 
-### Epic 1.1 — Modèle de données
+### Données nécessaires pour le MVP
 
-- [ ] Définir le schéma `Card` et les champs spécifiques Monstre/Magie/Piège.
-- [ ] Définir les types contrôlés : attributs, types, sous-types, niveaux, rangs, links et échelles.
-- [ ] Définir `Archetype`, ses alias et la relation plusieurs-à-plusieurs avec les cartes.
-- [ ] Définir `Format`, `Banlist`, `BanlistEntry` et leurs règles temporelles.
-- [ ] Définir `CardRelation`, `FunctionalTag`, provenance et confiance.
-- [ ] Définir `DataSource` et `DataSnapshot` pour l'audit des imports.
-- [ ] Ajouter contraintes, index, unicité et stratégie de migration.
-- [ ] Documenter le dictionnaire de données et les identifiants canoniques.
+- **Carte canonique :** identifiant numérique stable, passcode/identifiants de source, catégorie Monstre/Magie/Piège, type/race, sous-types, attribut, niveau/rang/link, marqueurs Link, échelle Pendule, ATK/DEF et statut de disponibilité.
+- **Affichage localisé :** nom, texte d'effet et langue, séparés de l'identité canonique ; anglais canonique et français d'affichage lorsqu'il est disponible.
+- **Archétypes :** identité, nom canonique, alias localisés et associations explicites avec les cartes.
+- **Format :** code `TCG_ADVANCED_EMEA`, territoire, règles de tailles Main/Extra/Side, limite normale de copies et version de règles.
+- **Légalité :** présence dans le pool régional et date d'effet vérifiable ; une information absente reste inconnue.
+- **Banlist :** source officielle, dates d'annonce/effet/snapshot et entrées 0/1/2, sans écrasement historique.
+- **Relations stratégiques :** synergies/conflits et rôles fonctionnels uniquement pour les archétypes pilotes, avec justification, provenance, confiance et version.
+- **Audit :** source, version distante, instant de collecte, hash du contenu brut, schéma d'import, volumes, erreurs et statut `staged/validated/published/rejected`.
+- **Hors Phase 1 MVP :** prix, tournois, métagame, matchups, rulings exhaustifs, données de comptes et historique utilisateur.
 
-### Epic 1.2 — Pipeline d'import
+### Schéma conceptuel final de Phase 1
 
-- [ ] Définir le contrat de l'adaptateur de source externe.
-- [ ] Implémenter la récupération paginée avec temporisation, reprise et limitation de débit.
-- [ ] Valider et normaliser les données brutes sans perdre la provenance.
-- [ ] Rendre l'import idempotent et transactionnel.
-- [ ] Conserver le snapshot, son hash, sa date et les erreurs de ligne.
-- [ ] Importer les cartes du pool MVP.
-- [ ] Importer et versionner la banlist MVP.
-- [ ] Gérer les cartes modifiées, retirées et rééditées sans casser les decklists.
-- [ ] Prévoir une commande de rafraîchissement et une procédure de retour arrière.
+```text
+DataSource 1 ── N DataSnapshot 1 ── N ImportedFact
+                                  └── N FormatSnapshot
 
-### Epic 1.3 — Qualité des données
+Card 1 ── N CardLocalization
+Card N ── N Archetype        via CardArchetype
+Card N ── N FunctionalTag    via CardFunctionalTag
+Card 1 ── N CardRelation(source) ── 1 Card(target)
 
-- [ ] Tester les champs obligatoires, domaines de valeurs et identifiants uniques.
-- [ ] Détecter doublons, références orphelines et incohérences de type.
-- [ ] Comparer les volumes et échantillons avec la source.
-- [ ] Vérifier les limites de banlist sur un jeu de cartes connu.
-- [ ] Constituer des fixtures petites, stables et représentatives pour les tests.
-- [ ] Générer un rapport d'import lisible et bloquer la publication en cas d'erreur critique.
-- [ ] Documenter la fraîcheur attendue et les alertes de dérive de schéma.
+Format 1 ── N FormatSnapshot
+Format 1 ── N Banlist 1 ── N BanlistEntry N ── 1 Card
+
+PublishedDataset
+  ├── 1 Card-catalogue DataSnapshot
+  ├── 1 FormatSnapshot
+  ├── 1 Banlist
+  └── version + published_at + integrity_report
+```
+
+`Deck`, `DeckVersion` et `DeckCard` restent dans le modèle global validé par ADR-0007, mais leur persistance appartient aux phases Backend/Deck Engine. La Phase 1 doit garantir que leurs futures références vers `Card`, `FormatSnapshot`, `Banlist` et `PublishedDataset` resteront stables.
+
+### Epic 1.0 — Spécification et décisions préalables
+
+- [x] Définir les données nécessaires et exclues de la Phase 1.
+- [x] Définir le schéma conceptuel final de la couche données.
+- [x] Définir YGOPRODeck comme source opérationnelle et KONAMI comme référence officielle.
+- [x] Définir le cycle de vie candidat `staged → validated → published` avec snapshots immuables.
+- [ ] Sélectionner et valider les archétypes pilotes du MVP.
+  - [ ] Choisir un nombre limité permettant une annotation et une revue réalistes.
+  - [ ] Couvrir plusieurs mécaniques d'Extra Deck et profils de construction.
+  - [ ] Privilégier des archétypes aux cartes, textes et decklists de référence accessibles.
+  - [ ] Éviter que tous les pilotes dépendent d'interactions/rulings hors périmètre.
+  - [ ] Faire approuver la liste et les critères de réussite par une personne compétente sur le jeu.
+- [ ] Clarifier D-008 pour chaque catégorie de contenu avant sa publication ou distribution.
+- [ ] Définir la liste minimale des `FunctionalTag` et types de `CardRelation` utilisés par le MVP.
+
+### Epic 1.1 — Dictionnaire et schéma logique
+
+- [ ] Spécifier `Card` champ par champ, nullabilité, domaine, unité et provenance.
+- [ ] Spécifier `CardLocalization` et la politique de fallback français → anglais.
+- [ ] Spécifier les types contrôlés : catégories, types, attributs, niveaux, rangs, links, marqueurs et échelles.
+- [ ] Spécifier `Archetype`, alias et relation `CardArchetype` sans supposer une appartenance unique.
+- [ ] Spécifier `Format`, `FormatSnapshot` et les paramètres TCG Advanced EMEA.
+- [ ] Spécifier `Banlist`, `BanlistEntry`, états, dates et contraintes temporelles.
+- [ ] Spécifier `CardRelation`, `FunctionalTag`, justification, provenance, confiance et contexte de format.
+- [ ] Spécifier `DataSource`, `DataSnapshot`, `ImportedFact` ou mécanisme équivalent et `PublishedDataset`.
+- [ ] Définir clés primaires, identifiants externes, contraintes d'unicité et références immuables.
+- [ ] Définir index nécessaires aux recherches nom/alias/type/archétype et aux jointures de validation.
+- [ ] Définir la stratégie d'évolution de schéma sans modifier les snapshots publiés.
+- [ ] Produire le dictionnaire de données revu avant toute table ou migration.
+
+### Epic 1.2 — Contrats de sources et d'import
+
+- [ ] Documenter précisément les endpoints/champs YGOPRODeck utilisés et leur mapping vers le modèle canonique.
+- [ ] Documenter la méthode contrôlée de capture de la banlist officielle KONAMI et la revue humaine requise.
+- [ ] Définir le contrat d'un adaptateur de source indépendant du domaine et du Rules Engine.
+- [ ] Définir le format de conservation temporaire des réponses brutes, hashes et métadonnées.
+- [ ] Définir les règles de normalisation sans perdre la valeur brute ni sa provenance.
+- [ ] Définir les comportements pour champ inconnu, langue absente, carte sans passcode, réédition et artwork alternatif.
+- [ ] Définir pagination, limite de débit, timeout, reprise, retry borné et cache conformément à la source.
+- [ ] Définir l'idempotence : réimporter le même contenu produit le même snapshot ou un no-op démontrable.
+- [ ] Définir atomicité et rollback : aucun snapshot partiel ne devient visible aux consommateurs.
+- [ ] Définir le traitement des suppressions/corrections sans casser les références historiques.
+- [ ] Concevoir un import exploratoire local limité avant l'import complet, sans le développer à cette étape.
+
+### Epic 1.3 — Synchronisation et versionnement
+
+- [ ] Définir l'identifiant de version du catalogue à partir de source, version distante, horodatage et hash.
+- [ ] Définir l'identifiant stable et lisible d'une version de banlist.
+- [ ] Définir la fréquence : détection quotidienne du catalogue et surveillance de la banlist, sans publication automatique.
+- [ ] Séparer collecte, staging, validation et publication atomique.
+- [ ] Exiger une approbation humaine pour toute nouvelle banlist officielle.
+- [ ] Définir le pointeur explicite vers le `PublishedDataset` actif sans notion implicite non auditée de « latest ».
+- [ ] Définir la rétention des données brutes et snapshots publiés ; ne jamais supprimer un snapshot encore référencé.
+- [ ] Définir le rollback par changement du pointeur actif, sans mutation des snapshots.
+- [ ] Définir les alertes de fraîcheur, échec de synchronisation et dérive de schéma.
+- [ ] Documenter la procédure opératoire de mise à jour et de retour arrière.
+
+### Epic 1.4 — Validation et qualité des données
+
+- [ ] Définir les contrôles structurels : types, champs obligatoires, domaines et encodage.
+- [ ] Définir les contrôles relationnels : doublons, références orphelines et cardinalités inattendues.
+- [ ] Définir les contrôles métier : statistiques possibles par catégorie, cohérence niveau/rang/link et zones éligibles.
+- [ ] Définir les contrôles de banlist : limites 0/1/2, carte connue, unicité carte/version et total de copies applicable.
+- [ ] Comparer volumes, distributions et échantillons au snapshot précédent et à la source.
+- [ ] Définir les seuils `warning` et `blocking` empêchant une publication.
+- [ ] Produire un rapport machine-readable et une synthèse humaine pour chaque import.
+- [ ] Prévoir la quarantaine des enregistrements invalides plutôt que leur correction silencieuse.
+- [ ] Définir la procédure de correction : nouvelle donnée/source ou override documenté et versionné.
+
+### Epic 1.5 — Plan de tests de données
+
+- [ ] Constituer des fixtures minimales légalement utilisables couvrant Monstre normal/effet, Fusion, Synchro, Xyz, Link, Pendule, Magie et Piège.
+- [ ] Ajouter des fixtures de champs absents, valeurs inconnues, traductions manquantes, doublons et références orphelines.
+- [ ] Tester le mapping de chaque type de carte et la conservation des valeurs brutes.
+- [ ] Tester idempotence, reprise après échec, atomicité et rollback.
+- [ ] Tester qu'un snapshot publié est immuable et qu'une correction crée une nouvelle version.
+- [ ] Tester qu'une mise à jour du catalogue ne change pas une génération liée à un ancien snapshot.
+- [ ] Tester les statuts Forbidden/Limited/Semi-Limited/Unlimited avec des cartes sentinelles officielles.
+- [ ] Tester recherche et résolution de noms anglais/français vers le même identifiant.
+- [ ] Tester les limites de débit et échecs simulés sans dépendre du réseau en CI.
+- [ ] Prévoir un test de contrat périodique contre la source, distinct des tests reproductibles CI.
+
+### Ordre d'exécution de la Phase 1
+
+1. Valider les archétypes pilotes et les vocabulaires stratégiques minimaux.
+2. Approuver le dictionnaire de données et les contraintes du schéma logique.
+3. Approuver les mappings et contrats des sources.
+4. Définir fixtures, contrôles qualité et critères de publication avant l'importateur.
+5. Implémenter ensuite le modèle physique et les migrations lors d'une tâche explicitement autorisée.
+6. Implémenter l'adaptateur YGOPRODeck et le workflow de banlist.
+7. Exécuter l'import exploratoire, corriger les anomalies, puis l'import complet.
+8. Publier le premier `PublishedDataset` seulement après passage de tous les contrôles bloquants.
 
 ### Critères de sortie de la phase 1
 
-- [ ] Un import complet est reproductible et idempotent.
-- [ ] Chaque donnée critique a une provenance et une version.
-- [ ] Les contrôles d'intégrité et fixtures passent automatiquement.
-- [ ] La banlist active et ses versions historiques sont requêtables.
+- [ ] Le dictionnaire, le schéma logique, les mappings de source et vocabulaires sont approuvés.
+- [ ] Les contenus utilisés satisfont les contraintes de D-008 applicables au contexte de déploiement visé.
+- [ ] Un import complet est reproductible, idempotent, reprenable et atomique.
+- [ ] Chaque donnée critique a une provenance et une version consultables.
+- [ ] Le catalogue anglais canonique et l'affichage français disponible sont liés aux mêmes identifiants.
+- [ ] La banlist TCG Advanced EMEA active et au moins un snapshot historique de test sont requêtables.
+- [ ] Les snapshots publiés sont immuables et un rollback a été testé.
+- [ ] Les contrôles et fixtures passent automatiquement ; aucun défaut `blocking` ne reste ouvert.
+- [ ] Le rapport d'intégrité contient volumes, anomalies, dérives et versions publiées.
+- [ ] Le catalogue permet les recherches MVP par nom, type et archétype dans les objectifs de performance définis.
+- [ ] Les archétypes pilotes ont des rôles/relations minimaux revus sans prétendre couvrir les interactions inconnues.
 
 ---
 
@@ -1110,19 +1216,19 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 
 | État | ID et question | Options | Recommandation | Raison |
 |---|---|---|---|---|
-| [ ] | **D-001 — Quel format MVP ?** | TCG actuel ; Master Duel ; multi-format ; architecture multi-format/un format | Option D, TCG Advanced EMEA uniquement | Source officielle publique, Side Deck pertinent et voie d'extension sans multiplier le MVP |
-| [ ] | **D-002 — Quelle banlist et quelle temporalité ?** | Toujours « latest » ; version figée ; choix utilisateur | Snapshot officiel KONAMI applicable à la génération, affiché et conservé | Reproductibilité et absence de changement silencieux |
-| [ ] | **D-003 — Quelle source de catalogue ?** | YGOPRODeck ; source officielle automatisée ; dataset tiers | YGOPRODeck API v7 en snapshot local, avec contrôle ciblé KONAMI | API documentée et multilingue ; découplage par adaptateur indispensable |
-| [ ] | **D-004 — Quelles langues ?** | Anglais seul ; français seul ; canonique anglais + UI française | IDs numériques + anglais canonique, interface française, noms FR lorsqu'ils sont disponibles | Robustesse des identifiants et expérience du public initial |
-| [ ] | **D-005 — Quel périmètre fonctionnel exact ?** | MVP minimal de validation ; génération complète proposée ; comptes inclus | Contrat de la section 6.1, sans compte ni optimisation automatique du Side Deck | Démontrer la valeur bout en bout sans infrastructure de compte ou données de matchup |
-| [ ] | **D-006 — Quelle architecture/stack ?** | TypeScript complet ; Python complet ; Next.js + FastAPI/Python | Monolithe modulaire Next.js/TypeScript + FastAPI/Python + PostgreSQL | UI typée et moteur/IA Python, avec limites de modules explicites |
-| [ ] | **D-007 — Quel modèle conceptuel ?** | Deck mutable ; versions immuables ; schéma minimal sans provenance | Modèle section 6.5 avec `DeckVersion`, snapshots et provenance | Reproductibilité des analyses et évolution des banlists |
-| [ ] | **D-008 — Quelles sources/licences sont acceptables ?** | Images distantes ; auto-hébergement ; aucune image au départ | Valider juridiquement API, textes, images et marques avant import ; démarrer sans images si nécessaire | Un doute de licence peut bloquer la diffusion, contrairement à une absence temporaire d'illustrations |
+| [x] | **D-001 — Quel format MVP ?** | TCG actuel ; Master Duel ; multi-format ; architecture multi-format/un format | **Accepté :** architecture multi-format, TCG Advanced EMEA uniquement | Source officielle publique, Side Deck pertinent et voie d'extension sans multiplier le MVP |
+| [x] | **D-002 — Quelle banlist et quelle temporalité ?** | Toujours « latest » ; version figée ; choix utilisateur | **Accepté :** snapshot officiel KONAMI applicable à la génération, affiché et conservé | Reproductibilité et absence de changement silencieux |
+| [x] | **D-003 — Quelle source de catalogue ?** | YGOPRODeck ; source officielle automatisée ; dataset tiers | **Accepté :** YGOPRODeck répliqué localement, KONAMI pour les références officielles | Catalogue disponible et reproductible sans coupler les règles à la source opérationnelle |
+| [x] | **D-004 — Quelles langues ?** | Anglais seul ; français seul ; canonique anglais + UI française | **Accepté :** IDs numériques + anglais canonique, interface française | Robustesse des identifiants et expérience du public initial |
+| [x] | **D-005 — Quel périmètre fonctionnel exact ?** | MVP minimal de validation ; génération complète proposée ; comptes inclus | **Accepté :** contrat de la section 6.1 avec import/export YDK et mode sans LLM | Démontrer la valeur bout en bout sans infrastructure de compte ou données de matchup |
+| [x] | **D-006 — Quelle architecture/stack ?** | TypeScript complet ; Python complet ; Next.js + FastAPI/Python | **Accepté :** monolithe modulaire Next.js/TypeScript + FastAPI/Python + PostgreSQL | UI typée et moteur/IA Python, avec limites de modules explicites |
+| [x] | **D-007 — Comment versionner les résultats ?** | État courant seulement ; banlist seule ; contexte complet immuable | **Accepté :** format, banlist, catalogue et horodatage associés à des snapshots immuables | Reproductibilité des générations et absence de modification rétroactive |
 
 ### 🟠 Importantes
 
 | État | ID et question | Options | Recommandation | Raison |
 |---|---|---|---|---|
+| [ ] | **D-008 — Quelles sources/licences sont acceptables ?** | Images distantes ; auto-hébergement ; contenu minimal ; conditions distinctes local/public/commercial | Clarifier juridiquement API, données, textes, images et marques avant publication/distribution | Le développement local peut avancer avec des fixtures prudentes, mais aucune conclusion juridique n'est acquise |
 | [ ] | **D-009 — Quels archétypes pilotes ?** | Un seul ; cinq représentatifs ; catalogue entier non annoté | Cinq couvrant Fusion/Synchro/Xyz/Link et complexités différentes, choisis avec un expert | Jeu d'évaluation utile sans annoter tout le catalogue |
 | [ ] | **D-010 — Comment définir la qualité d'un deck ?** | Avis expert ; score heuristique ; résultats tournoi | Légalité obligatoire + grille de rôles + golden decks revus, sans prétendre mesurer la puissance absolue | Critère testable malgré l'absence de simulateur et de données compétitives fiables |
 | [ ] | **D-011 — Quel LLM et quel budget ?** | Fournisseur unique ; multi-fournisseur ; local | Port fournisseur, benchmark de modèles compatibles JSON, plafond mensuel et coût par génération | Choix fondé sur qualité/coût/latence réels, pas sur la popularité |
@@ -1145,24 +1251,26 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 
 ### Synthèse des validations attendues
 
-- [ ] Le porteur du projet approuve ou amende D-001 à D-008.
-- [ ] Les décisions approuvées sont transformées en ADR datés.
-- [ ] Les conséquences des amendements sont propagées dans le modèle, les phases et les risques.
+- [x] Le porteur du projet a approuvé D-001 à D-007.
+- [x] Les décisions D-001 à D-007 sont transformées en ADR `Accepted` datés par le contexte du projet.
+- [x] D-008 est documentée dans un ADR `Proposed`, sans conclusion juridique.
+- [x] Les conséquences des décisions D-001 à D-007 sont propagées dans le modèle, les phases et les risques.
+- [ ] D-008 est clarifiée avant toute publication ou distribution.
 - [ ] Les décisions D-009 à D-016 ont un propriétaire et une échéance antérieure à leur première implémentation.
 
 ---
 
 ## 11. Première tâche concrète
 
-### À réaliser ensuite : valider le format et la banlist du MVP
+### À réaliser ensuite : sélectionner et valider les archétypes pilotes du MVP
 
-- [x] Comparer les stratégies TCG, Master Duel, multi-format immédiat et architecture multi-format progressive.
-- [ ] Choisir un format unique pour la première livraison.
-- [ ] Identifier sa source de banlist autoritative et une version de départ datée.
-- [x] Documenter la proposition de tailles de zones, limites de copies et cas spéciaux pris en charge.
-- [ ] Faire approuver la décision et la consigner dans l'ADR **D-001/D-002**.
+- [ ] Fixer le nombre maximal d'archétypes que l'équipe peut annoter et revoir pendant le MVP.
+- [ ] Établir une liste candidate à partir de critères objectifs, sans retenir automatiquement les archétypes les plus populaires.
+- [ ] Vérifier la diversité des mécaniques, la disponibilité des cartes et la complexité des interactions.
+- [ ] Estimer pour chaque candidat le volume de rôles, synergies, conflits et golden decks à documenter.
+- [ ] Faire approuver la liste finale et consigner D-009.
 
-**Critère d'acceptation :** un document de décision nomme sans ambiguïté le format, la région, la date/version de banlist, la source, les règles de taille et les limites que le MVP promet de valider.
+**Critère d'acceptation :** une liste limitée d'archétypes est explicitement approuvée, chaque choix est justifié par les critères de couverture, données disponibles, complexité testable et effort d'annotation, et aucun archétype supplémentaire n'est implicitement considéré comme supporté.
 
 ---
 
@@ -1175,3 +1283,6 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-29 | Ouverture de la décision sur le format et la banlist du MVP | En cours |
 | 2026-09-29 | Rédaction de la spécification candidate de Phase 0 : MVP, formats, pipeline, LLM, modèle, sources, stack et architecture | Terminé |
 | 2026-09-29 | Classement des décisions D-001 à D-022 ; D-001 à D-008 soumises à validation | En attente de décision |
+| 2026-09-29 | Acceptation des décisions D-001 à D-007 et création de leurs ADR | Terminé |
+| 2026-09-29 | Documentation de D-008 en statut `Proposed` ; clarification requise avant publication/distribution | En attente |
+| 2026-09-29 | Plan détaillé de la Phase 1 — données, schéma, import, synchronisation, qualité et tests | Terminé, implémentation non commencée |
