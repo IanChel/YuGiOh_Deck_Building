@@ -26,9 +26,9 @@
 |---|---|
 | Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
 | Tâche en cours | Préparer le dictionnaire de données et le schéma logique de Phase 1 |
-| Prochaine tâche | Spécifier `Banlist`, `BanlistEntry`, leurs états, leurs dates et leurs contraintes temporelles |
+| Prochaine tâche | Spécifier `DataSource`, `DataSnapshot`, `ImportedFact` et `PublishedDataset` |
 | Blocages | D-008 juridique bloque toute publication/distribution ; aucun blocage D-009 ne subsiste pour la spécification de Phase 1 |
-| Décisions récentes | D-001 à D-007 et D-009 à D-015 acceptées ; D-015 sépare format, région, catalogue, disponibilité et banlist dans un contexte temporel reproductible |
+| Décisions récentes | D-001 à D-007 et D-009 à D-016 acceptées ; D-016 fixe les snapshots de banlist, restrictions canoniques et invariants temporels |
 
 ### Règles de mise à jour
 
@@ -1259,7 +1259,7 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | [x] | **D-013 — Quels types contrôlés structurent `CardSnapshot` ?** | Chaînes libres ; catégories combinatoires ; ensembles contrôlés et domaines qualifiés | **Accepté :** catégorie principale, classifications/capacités multiples, races normatives, attributs, domaines Spell/Trap, propriétés numériques, Link et Pendulum | `UNKNOWN` distinct de `NOT_APPLICABLE` ; aucune valeur `INVALID`/`OTHER` ; quarantaine et publication bloquée si mapping requis absent |
 | [x] | **D-014 — Comment représenter l'appartenance structurelle aux archétypes ?** | Déduction textuelle ; archétype unique ; assertions plusieurs-à-plusieurs sourcées | **Accepté :** identités `Archetype` stables, localisations/alias séparés et appartenances versionnées avec provenance et revue D-010 | Aucun archétype principal ; supports et synergies hors relation ; valeurs inconnues en quarantaine sans cible `UNKNOWN` |
 | [x] | **D-015 — Comment représenter le format et le périmètre TCG Advanced EMEA ?** | Format régional fusionné ; légalité sur `Card` ; contexte versionné composé | **Accepté :** `Format` stable, `FormatSnapshot` immuable, `RegionalScope=EMEA` séparé et contexte épinglant catalogue et future banlist | Intervalles `[effective_from, effective_until)` ; disponibilité `AVAILABLE` nécessaire mais non suffisante à la légalité |
-| [ ] | **D-016 — Quelle confidentialité/télémétrie ?** | Aucune ; strict minimum ; analytics complet | Événements produit minimaux avec consentement et aucune demande brute conservée par défaut | Mesurer le MVP tout en minimisant les données personnelles |
+| [x] | **D-016 — Comment modéliser les banlists et leurs contraintes temporelles ?** | Restriction sur `Card` ; liste mutable ; famille stable et snapshots immuables | **Accepté :** `Banlist`, `BanlistSnapshot` et `BanlistEntry` vers `Card`, restrictions `FORBIDDEN`/`LIMITED`/`SEMI_LIMITED`, limites numériques dérivées | Absence d'entrée conditionnée par la complétude ; intervalles non chevauchants ; corrections par supersession ; inconnus en quarantaine |
 | [ ] | **D-023 — Comment définir la qualité d'un deck ?** | Avis expert ; score heuristique ; résultats tournoi | Légalité obligatoire + grille de rôles + golden decks revus, sans prétendre mesurer la puissance absolue | Ancienne question D-010 renumérotée pour réserver D-010 au vocabulaire fonctionnel ; critère testable sans simulateur complet |
 
 ### 🟢 Secondaires
@@ -1322,3 +1322,4 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-29 | Validation de D-013 : types contrôlés intrinsèques et passage de l'ADR-0013 à `Accepted` | Terminé |
 | 2026-09-29 | Validation de D-014 : appartenance structurelle aux archétypes et passage de l'ADR-0014 à `Accepted` | Terminé |
 | 2026-09-29 | Validation de D-015 : format, temporalité et périmètre TCG Advanced EMEA ; ADR-0015 passé à `Accepted` | Terminé |
+| 2026-09-29 | Validation de D-016 : modèle de banlist, restrictions et invariants temporels ; ADR-0016 passé à `Accepted` | Terminé |

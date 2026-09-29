@@ -2,13 +2,13 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
 Les limitations officielles doivent rester reproductibles à travers les changements de liste, de format, de catalogue et de disponibilité régionale. Une restriction ne peut pas être stockée directement sur `Card`, et l'absence d'entrée ne doit pas masquer une banlist incomplète ou une référence non résolue.
 
-## Proposed decision
+## Decision
 
 - représenter la famille officielle par une identité `Banlist` stable liée à `Format` et `RegionalScope` ;
 - représenter chaque publication par un `BanlistSnapshot` immuable avec source, publication, effet, fin éventuelle, intégrité et supersession ;
@@ -23,7 +23,7 @@ Les limitations officielles doivent rester reproductibles à travers les changem
 - mettre en quarantaine toute référence inconnue ou ambiguë et empêcher une conclusion positive de légalité tant que l'intégrité n'est pas rétablie ;
 - maintenir banlist, disponibilité régionale et règles générales de format comme dimensions distinctes.
 
-La proposition complète et ses questions de validation sont décrites dans [`docs/specifications/d016-banlist-and-temporal-constraints.md`](../specifications/d016-banlist-and-temporal-constraints.md).
+La spécification complète et les décisions validées sont décrites dans [`docs/specifications/d016-banlist-and-temporal-constraints.md`](../specifications/d016-banlist-and-temporal-constraints.md).
 
 ## Consequences
 

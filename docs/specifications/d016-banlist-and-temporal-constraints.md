@@ -2,7 +2,7 @@
 
 ## Statut
 
-**Proposed — validation humaine requise.**
+**Accepted — validée le 2026-09-29.**
 
 Cette spécification définit le modèle conceptuel et les invariants temporels des banlists. Elle ne crée aucun code, table SQL, ORM, migration, import, dataset ou logique de validation de deck.
 
@@ -320,15 +320,15 @@ D-016 exclut explicitement :
 - SQL, ORM et migrations ;
 - API et UI.
 
-## 20. Questions de validation finales
+## 20. Décisions finales validées
 
-1. Le modèle `Banlist` stable / `BanlistSnapshot` immuable / `BanlistEntry` par carte est-il accepté, sans contenu de liste directement dans `Banlist` ?
-2. `Banlist` doit-elle référencer le `Format` et le `RegionalScope` stables, tandis que le contexte reproductible épingle séparément `FormatSnapshot` et `BanlistSnapshot` et vérifie leur compatibilité ?
-3. `BanlistEntry` doit-elle référencer la `Card` stable et ne contenir que `FORBIDDEN`, `LIMITED` ou `SEMI_LIMITED`, avec au plus une entrée par carte et snapshot ?
-4. Les limites numériques 0/1/2 doivent-elles être dérivées de la restriction et ne jamais devenir une seconde source de vérité canonique ?
-5. L'absence d'entrée doit-elle signifier « aucune restriction explicite » uniquement lorsque le snapshot est complet et le contexte résolu, tout autre cas restant indéterminé plutôt que `UNLIMITED` ?
-6. Les intervalles `[effective_from, effective_until)`, l'absence de chevauchement ordinaire et la supersession explicite doivent-ils constituer les invariants temporels normatifs ?
-7. Une référence de carte inconnue, ambiguë ou non mappée doit-elle placer le fait en quarantaine et empêcher le snapshot d'être déclaré complet pour une conclusion de légalité jusqu'à résolution ?
+1. Le modèle `Banlist` stable / `BanlistSnapshot` immuable / `BanlistEntry` par carte est retenu. `Banlist` ne contient jamais directement le contenu d'une publication.
+2. `Banlist` référence le `Format` et le `RegionalScope` stables. Le contexte reproductible épingle séparément `FormatSnapshot` et `BanlistSnapshot`, vérifie leur compatibilité et ne les fusionne pas physiquement.
+3. `BanlistEntry` référence la `Card` stable et utilise uniquement `FORBIDDEN`, `LIMITED` ou `SEMI_LIMITED`. Une seule entrée effective par carte et par snapshot est autorisée ; toute contradiction est une anomalie de données.
+4. Les limites numériques 0, 1 et 2 sont dérivées de la restriction et ne constituent jamais une seconde source de vérité canonique.
+5. L'absence d'entrée signifie « aucune restriction explicite » uniquement lorsque le snapshot est complet et le contexte résolu. Elle ne signifie jamais automatiquement `UNLIMITED` pour des données incomplètes, ambiguës ou non résolues.
+6. Les intervalles `[effective_from, effective_until)`, l'absence de chevauchement ordinaire et la supersession explicite sont les invariants temporels normatifs.
+7. Toute référence de carte inconnue, ambiguë ou non mappée est mise en quarantaine. Le snapshot ne peut pas être considéré comme complet pour une conclusion de légalité avant résolution.
 
 ## 21. Proposition minimale
 
