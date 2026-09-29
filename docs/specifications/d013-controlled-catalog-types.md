@@ -2,7 +2,7 @@
 
 ## Statut
 
-**Proposed — validation humaine requise.**
+**Accepted — validée le 2026-09-29.**
 
 Cette spécification définit le vocabulaire conceptuel minimal des propriétés intrinsèques de `CardSnapshot`. Elle ne crée ni code, classe, enum technique, SQL, ORM, migration, import, seed ou dataset.
 
@@ -41,7 +41,7 @@ Une catégorie absente, externe non reconnue ou contradictoire bloque la publica
 
 ## 4. Sous-classifications des monstres
 
-Le champ conceptuel `monster_frame_kinds` est un **ensemble de classifications contrôlées**, et non une valeur unique ni une collection de colonnes booléennes :
+Le champ conceptuel `monster_classifications` est un **ensemble de classifications contrôlées**, et non une valeur unique ni une collection de colonnes booléennes :
 
 - `NORMAL` ;
 - `EFFECT` ;
@@ -63,11 +63,13 @@ Règles conceptuelles :
 - une valeur absente de l'ensemble signifie que la classification ne s'applique pas ; elle ne signifie pas que la donnée est inconnue ;
 - l'ensemble entier inconnu ou incohérent est un état de donnée à résoudre avant publication.
 
+Le nom `monster_classifications` est retenu conceptuellement afin de ne pas laisser entendre que toutes les valeurs désignent des « frames » au même sens. Il ne prescrit aucun nom de colonne ni aucune représentation physique.
+
 `NORMAL` et `EFFECT` restent des classifications de cadre/texte, distinctes de la présence d'un rôle stratégique. La liste MVP pourra être étendue si une nouvelle classification intrinsèque officielle apparaît.
 
 ## 5. Capacités orthogonales des monstres
 
-Le champ conceptuel `monster_abilities` est un ensemble contrôlé distinct de `monster_frame_kinds` :
+Le champ conceptuel `monster_abilities` est un ensemble contrôlé distinct de `monster_classifications` :
 
 - `TUNER` ;
 - `FLIP` ;
@@ -126,9 +128,9 @@ Pour `SPELL` :
 
 - `NORMAL` ;
 - `CONTINUOUS` ;
+- `QUICK_PLAY` ;
 - `EQUIP` ;
 - `FIELD` ;
-- `QUICK_PLAY` ;
 - `RITUAL`.
 
 Pour `TRAP` :
@@ -137,7 +139,9 @@ Pour `TRAP` :
 - `CONTINUOUS` ;
 - `COUNTER`.
 
-Pour `MONSTER`, cette propriété est `NOT_APPLICABLE`. Une Spell ou Trap publiée possède exactement une propriété admise pour sa catégorie. La valeur `NORMAL` est interprétée dans le domaine de la catégorie principale et ne doit pas être confondue avec la classification `NORMAL` d'un monstre.
+Pour `MONSTER`, cette propriété est `NOT_APPLICABLE`. Une Spell ou Trap publiée possède exactement une propriété admise pour sa catégorie.
+
+Les domaines Spell et Trap sont conceptuellement distincts. `SPELL.NORMAL` signifie « propriété Normal Spell » et `TRAP.NORMAL` signifie « propriété Normal Trap » ; leur libellé commun `NORMAL` ne crée ni identité ambiguë entre ces domaines, ni confusion avec la classification `MONSTER.NORMAL`. Cette qualification sémantique n'impose aucune représentation physique.
 
 Ces propriétés décrivent l'iconographie/classification intrinsèque. Elles ne décrivent pas l'effet ni le rôle stratégique : `DRAW`, `SEARCHER`, `FLOODGATE`, `REMOVAL` et les autres termes D-010 n'appartiennent pas à ce vocabulaire.
 
@@ -176,7 +180,7 @@ Pour une carte non-Link, la propriété est `NOT_APPLICABLE`. Pour une carte Lin
 
 ## 11. Pendulum
 
-`PENDULUM` est une valeur de `monster_frame_kinds`, combinable avec les autres classifications autorisées. Elle ne constitue ni une catégorie principale ni une propriété Spell/Trap.
+`PENDULUM` est une valeur de `monster_classifications`, combinable avec les autres classifications autorisées. Elle ne constitue ni une catégorie principale ni une propriété Spell/Trap.
 
 Les deux échelles sont conservées séparément :
 
@@ -259,7 +263,7 @@ Le mapping YGOPRODeck → vocabulaire interne est explicite, versionné et disti
 | Nouvelle valeur plausible | Mettre en quarantaine, vérifier une source normative puis versionner une extension du vocabulaire |
 | Donnée mal formée | Rejeter le fait candidat et produire une anomalie de qualité |
 
-Le libellé ou regroupement externe n'est jamais supposé identique au domaine interne. Une table détaillée de mapping sera spécifiée avec les contrats de source, sans modifier les principes D-013.
+Le libellé ou regroupement externe n'est jamais supposé identique au domaine interne. Une valeur inconnue reste non mappée et en quarantaine jusqu'à la création d'un mapping versionné ou une revue humaine validée. Si la propriété contrôlée est requise, la publication du fait concerné est bloquée jusqu'à résolution. Aucune conversion silencieuse vers `OTHER` n'est autorisée. Une table détaillée de mapping sera spécifiée avec les contrats de source, sans modifier les principes D-013.
 
 ## 17. Évolution du vocabulaire
 
@@ -289,13 +293,13 @@ D-013 exclut explicitement :
 - SQL, ORM, migrations et index physiques ;
 - importer, seed, fixtures physiques et dataset de production.
 
-## 19. Questions de validation finales
+## 19. Décisions finales validées
 
-1. Le modèle en deux ensembles contrôlés — `monster_frame_kinds` et `monster_abilities` — est-il accepté, sans valeurs combinatoires ni colonnes booléennes par capacité ?
-2. Le registre des races doit-il être validé depuis une source officielle TCG distincte du sous-ensemble observé chez YGOPRODeck, toute nouvelle race externe restant en quarantaine jusque-là ?
-3. `UNKNOWN` doit-il rester un état de donnée applicable mais non établie, tandis que `NOT_APPLICABLE` est déterminé par la catégorie/classification et qu'aucun état métier `INVALID` n'est créé ?
-4. Les vocabulaires Spell/Trap proposés sont-ils suffisamment granulaires pour le MVP : six propriétés Spell et trois propriétés Trap, avec `NORMAL` interprété dans le domaine de la catégorie principale ?
-5. Une valeur externe non reconnue doit-elle toujours bloquer la publication du fait concerné jusqu'à mapping versionné ou revue humaine, sans valeur interne générique `OTHER` ?
+1. Deux ensembles contrôlés distincts sont retenus : `monster_classifications` et `monster_abilities`. Chacun accepte plusieurs valeurs, sans catégorie combinatoire ni multiplication obligatoire de colonnes booléennes.
+2. Le registre interne des races repose sur une source normative appropriée et reste indépendant du sous-ensemble observé chez YGOPRODeck. Une valeur externe inconnue n'intègre jamais automatiquement ce registre.
+3. `UNKNOWN` désigne une propriété applicable dont la donnée n'est pas établie ; `NOT_APPLICABLE` une propriété qui ne s'applique pas ; une valeur concrète une donnée connue. Une donnée invalide ou incohérente reste une anomalie de qualité sans état métier `INVALID`.
+4. Les six propriétés Spell et trois propriétés Trap proposées sont acceptées. Les valeurs homonymes, notamment `NORMAL`, appartiennent à des domaines qualifiés distincts.
+5. Une valeur externe non reconnue reste non mappée et en quarantaine jusqu'à un mapping versionné ou une revue humaine validée. La publication d'un fait nécessitant cette valeur est bloquée et aucun fallback `OTHER` n'est permis.
 
 ## 20. Proposition minimale
 
@@ -303,7 +307,7 @@ D-013 exclut explicitement :
 CardSnapshot
   card_category: MONSTER | SPELL | TRAP
 
-  monster_frame_kinds[]:
+  monster_classifications[]:
     NORMAL | EFFECT | RITUAL | FUSION | SYNCHRO | XYZ | LINK | PENDULUM
 
   monster_abilities[]:
@@ -313,7 +317,7 @@ CardSnapshot
   attribute: DARK | LIGHT | EARTH | WATER | FIRE | WIND | DIVINE
 
   spell_trap_property:
-    Spell: NORMAL | CONTINUOUS | EQUIP | FIELD | QUICK_PLAY | RITUAL
+    Spell: NORMAL | CONTINUOUS | QUICK_PLAY | EQUIP | FIELD | RITUAL
     Trap:  NORMAL | CONTINUOUS | COUNTER
 
   level | rank | link_rating: propriétés numériques distinctes
