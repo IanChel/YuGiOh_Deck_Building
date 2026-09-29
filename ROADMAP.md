@@ -23,10 +23,10 @@
 | Élément | État |
 |---|---|
 | Phase actuelle | **Phase 0 — Conception** |
-| Tâche en cours | Valider le périmètre MVP et les décisions structurantes avec les parties prenantes |
-| Prochaine tâche | Choisir le format et la banlist de référence du MVP |
-| Blocages | Format cible, territoire/langue des cartes, source de données et budget LLM non validés |
-| Décisions récentes | Approche MVP puis itérations ; architecture hybride déterministe + IA ; aucune implémentation commencée |
+| Tâche en cours | Revue et validation par le porteur du projet de la spécification candidate de Phase 0 |
+| Prochaine tâche | Approuver ou amender les décisions bloquantes D-001 à D-008 |
+| Blocages | Format TCG Advanced EMEA, source YGOPRODeck + Konami, langue canonique, cinq archétypes pilotes, stack et budget LLM proposés mais non approuvés |
+| Décisions récentes | Spécification candidate produite ; recommandation d'une architecture multi-format avec uniquement TCG Advanced EMEA implémenté au MVP ; aucune de ces recommandations n'est encore considérée comme validée |
 
 ### Règles de mise à jour
 
@@ -249,6 +249,244 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 
 ---
 
+## 6. Spécification candidate de Phase 0 — à valider
+
+> Cette section constitue une proposition suffisamment précise pour démarrer après approbation. Les recommandations ne sont pas des décisions validées. Les points nécessitant une décision explicite sont répertoriés en section 10.
+
+### 6.1 Fonctionnalités classées par priorité
+
+| Capacité | Classement | Spécification du premier incrément |
+|---|---|---|
+| Choisir format et banlist | **Indispensable MVP** | Un seul format et une version de banlist explicite ; aucun choix multi-format dans l'interface initiale |
+| Rechercher une carte | **Indispensable MVP** | Recherche par nom avec fiche minimale, filtres type et archétype |
+| Choisir un archétype | **Indispensable MVP** | Sélection dans un ensemble pilote annoté et supporté |
+| Imposer/exclure/verrouiller des cartes | **Indispensable MVP** | Identifiants du catalogue uniquement, quantité comprise entre 0 et la limite légale |
+| Générer un deck | **Indispensable MVP** | Une proposition Main + Extra Deck lorsque pertinent ; Side Deck éditable mais non optimisé automatiquement |
+| Éditer le deck | **Indispensable MVP** | Ajouter, retirer et modifier une quantité ; validation après chaque changement |
+| Valider la légalité | **Indispensable MVP** | Existence, zone, taille, copies cumulées, pool régional et banlist datée |
+| Analyser la cohérence | **Indispensable MVP** | Ratios et couverture des rôles définis ; synergies/conflits uniquement s'ils sont annotés |
+| Optimiser | **Indispensable MVP** | Une proposition d'échanges ajout/retrait avec impact, jamais appliquée sans action utilisateur |
+| Expliquer avec l'IA | **Indispensable MVP** | Plan de jeu, rôle des cartes clés, alertes et limites à partir des faits fournis par le moteur |
+| Import/export | **Indispensable MVP** | Format YDK proposé ; import avec rapport des cartes inconnues et export des trois zones |
+| Fonctionner sans IA | **Indispensable MVP** | Édition, validation, génération algorithmique et métriques restent disponibles |
+| Comptes et sauvegarde cloud | **Après MVP** | Authentification, bibliothèque personnelle et historique synchronisé |
+| Historique de versions | **Après MVP** | Snapshots immuables, comparaison et restauration |
+| Optimisation automatique du Side Deck | **Après MVP** | Nécessite un modèle de matchup et des données de menace/réponse |
+| Profils budget/going first/going second | **Après MVP** | Paramètres de scoring séparés et évalués |
+| Plusieurs variantes classées | **Après MVP** | Diversité contrôlée et comparaison des compromis |
+| Statistiques de tournois/métagame | **Après MVP** | Uniquement avec source, licence, période et biais documentés |
+| Partage public et collaboration | **Après MVP** | Permissions, modération et confidentialité préalables |
+| Multi-langue complet | **Après MVP** | Anglais canonique proposé, interface française possible au MVP |
+| Formats multiples visibles | **Après MVP** | Un adaptateur supplémentaire seulement après stabilisation du TCG |
+| Simulation de duel | **À ne pas prévoir maintenant** | Projet distinct par sa complexité réglementaire et combinatoire |
+| Rulings exhaustifs | **À ne pas prévoir maintenant** | Le MVP affiche ses limites au lieu de prétendre arbitrer toute interaction |
+| Entraînement d'un LLM propriétaire | **À ne pas prévoir maintenant** | Aucun avantage validé face à un modèle hébergé et des données structurées |
+| Réseau social/marketplace | **À ne pas prévoir maintenant** | Hors proposition de valeur initiale |
+| Application mobile native | **À ne pas prévoir maintenant** | Web responsive suffisant pour tester la valeur |
+
+#### Contrat fonctionnel du MVP proposé
+
+1. L'utilisateur choisit l'un des archétypes pilotes ou part d'une liste existante.
+2. Il ajoute des cartes obligatoires, interdit certaines cartes et peut formuler une intention libre courte.
+3. Le système affiche le format et la banlist datée qui seront appliqués.
+4. Le moteur génère une unique proposition légale ou explique précisément pourquoi aucune solution n'a été trouvée.
+5. L'utilisateur modifie Main/Extra/Side et reçoit des erreurs déterministes en temps réel.
+6. L'analyse affiche légalité, répartition Monstre/Magie/Piège, rôles fonctionnels, cartes clés, synergies annotées, conflits connus et avertissements.
+7. L'optimiseur propose des échanges vérifiés ; l'utilisateur décide de les appliquer.
+8. Le LLM explique les résultats structurés sans ajouter de carte ni modifier la liste.
+9. L'utilisateur exporte le deck ; aucun compte n'est requis au MVP et le brouillon peut être conservé localement.
+
+#### Définition proposée d'un résultat MVP acceptable
+
+- La decklist est légale pour le snapshot de format affiché.
+- Toutes les cartes et tous les faits cités existent dans le catalogue local.
+- Les cartes verrouillées sont conservées ou une impossibilité motivée est retournée.
+- L'analyse sépare explicitement règles, heuristiques et texte généré.
+- Une réponse sans solution est préférable à une liste illégale ou inventée.
+- La génération algorithmique cible une réponse p95 inférieure à 3 secondes hors import ; l'explication IA cible un p95 inférieur à 15 secondes.
+
+### 6.2 Comparaison des stratégies de format
+
+| Option | Avantages | Inconvénients | Verdict |
+|---|---|---|---|
+| **A — TCG actuel seulement** | Banlist et règles officielles publiques ; Side Deck pertinent ; public papier large ; historique disponible | Risque de coupler le domaine au TCG ; différences régionales et dates de sortie à traiter | Bon périmètre, architecture trop fermée si appliquée littéralement |
+| **B — Master Duel seulement** | Environnement numérique homogène ; intérêt pour le ladder ; pas de légalité régionale papier | Banlist et pool propres, règles de match/Side Deck différentes ; source officielle automatisable moins évidente ; mises à jour fréquentes | Plus risqué pour une première source de vérité |
+| **C — Plusieurs formats dès le MVP** | Valeur immédiate pour plusieurs publics ; modèle testé tôt | Multiplie règles, imports, snapshots, tests, UX et maintenance avant validation produit | Rejeté pour le MVP |
+| **D — Architecture multi-format, un format implémenté** | Maintient le MVP petit ; force des frontières propres ; facilite TCG/OCG/Master Duel/historique plus tard | Exige une abstraction minimale et discipline pour ne pas surconcevoir | **Recommandé** |
+
+#### Recommandation précise à approuver
+
+- Architecture **Option D**, avec un contrat `FormatRules` versionné et des données séparées des règles.
+- Seul adaptateur MVP : **TCG Advanced, territoire EMEA**, parties en match, banlist officielle applicable à la date du snapshot.
+- Anglais comme identifiant textuel canonique et français comme langue d'interface ; les identifiants numériques restent la référence technique.
+- Main Deck de 40 à 60 cartes, Extra Deck de 0 à 15 et Side Deck de 0 à 15 ; limite normale de trois copies cumulées, réduite par la banlist.
+- Légalité régionale fondée sur la date de sortie TCG EMEA lorsque l'information est suffisamment fiable ; toute donnée incertaine est signalée et non inventée.
+- Le Side Deck peut être édité et validé au MVP, mais sa génération/optimisation par matchup est différée.
+- Les formats futurs ajoutent un adaptateur, un pool de cartes, des versions de banlist et des tests de conformité, sans branche conditionnelle dispersée dans l'application.
+
+### 6.3 Pipeline du Deck Builder
+
+```text
+Entrée formulaire ou langage naturel
+  → résolution de l'intention et des noms [LLM optionnel + catalogue]
+  → confirmation des ambiguïtés [interface]
+  → chargement FormatSnapshot/BanlistSnapshot [déterministe]
+  → normalisation des contraintes [déterministe]
+  → création du pool de candidats [requêtes + règles déterministes]
+  → enrichissement par rôles/synergies connus [données versionnées]
+  → filtrage des contraintes dures [Rules Engine]
+  → génération de plusieurs candidats internes [algorithme]
+  → scoring et réparation [algorithme explicable]
+  → validation finale indépendante [Rules Engine]
+  → analyse structurée [algorithme]
+  → explication en langage naturel [LLM]
+  → vérification des références et rendu [backend + frontend]
+```
+
+| Étape | Nature | Règle de conception |
+|---|---|---|
+| Compréhension d'une phrase libre | LLM facultatif | Sortie JSON stricte ; l'utilisateur confirme toute ambiguïté importante |
+| Résolution des noms | Déterministe | Recherche dans le catalogue ; aucun nom libre ne devient une carte |
+| Choix format/banlist | Déterministe/UI | Valeur explicite, jamais déduite silencieusement |
+| Pool de candidats | Déterministe | Cartes locales légales et relations connues uniquement |
+| Construction | Algorithmique | Heuristique versionnée, seed enregistrable et budget de calcul borné |
+| Légalité | Déterministe | Validateur indépendant utilisé avant et après toute transformation |
+| Synergies/conflits | Données + algorithme | Faits annotés avec provenance et confiance ; pas d'affirmation absolue non sourcée |
+| Optimisation | Algorithmique | Recherche d'échanges améliorant des objectifs explicites sous contraintes dures |
+| Explication | LLM | Reçoit deck, métriques et raisons ; ne peut pas changer les identifiants |
+
+### 6.4 Contrat exact du LLM
+
+#### Le LLM est autorisé à
+
+- Transformer une intention libre en `DeckRequest` structuré : archétype, style, cartes imposées/exclues et contraintes souples.
+- Reformuler une ambiguïté sous forme de question courte.
+- Expliquer le plan de jeu, les rôles, les compromis et les alertes calculés.
+- Comparer deux versions à partir de leurs différences structurées.
+- Proposer des objectifs d'optimisation ; le moteur reste seul habilité à proposer les cartes finales.
+- Produire du texte français à partir de données canoniques anglaises.
+
+#### Le LLM n'est pas autorisé à
+
+- Affirmer l'existence, l'effet, le type, les statistiques ou la légalité d'une carte de mémoire.
+- Choisir implicitement une banlist ou substituer un format.
+- Ajouter, retirer ou changer une quantité dans la decklist validée.
+- Calculer tailles, limites de copies, probabilités ou scores affichés.
+- Déclarer qu'une interaction/ruling est légale sans fait vérifié fourni.
+- Appeler directement la base ou une source externe depuis une réponse utilisateur.
+- Masquer l'incertitude, les données manquantes ou l'échec du validateur.
+
+#### Garde-fous contractuels
+
+- Entrées minimales et structurées ; textes de cartes marqués comme données non fiables pour les instructions.
+- Sorties JSON validées par schéma, identifiants recoupés avec la base et références inconnues rejetées.
+- Température faible pour extraction et explication factuelle ; prompts et modèle versionnés.
+- Après toute suggestion affectant un deck, passage obligatoire par le Rules Engine.
+- Mode dégradé sans LLM : formulaire, génération, validation et analyse chiffrée restent utilisables.
+- Aucun RAG sémantique ni base vectorielle au MVP : requêtes SQL, recherche textuelle et relations structurées suffisent. Un RAG ne sera étudié que pour un corpus de rulings sourcé devenu nécessaire.
+
+### 6.5 Modèle conceptuel proposé
+
+| Entité | Rôle et données principales | Relations |
+|---|---|---|
+| `Card` | Identité canonique, passcode, noms localisés, texte, catégorie, type/race, attribut, niveau/rang/link, ATK/DEF, échelle, statut et provenance | N–N avec `Archetype`, 1–N avec `DeckCard` et `BanlistEntry`, N–N dirigée via `CardRelation` |
+| `Archetype` | Nom canonique, alias localisés, description courte, statut de support MVP | N–N avec `Card`; 1–N avec profils/annotations stratégiques futurs |
+| `CardRelation` | Carte source/cible, type de relation, sens, poids, justification, provenance, confiance et version | Deux relations vers `Card`; optionnellement limitée à un `Format` |
+| `FunctionalTag` | Rôle stratégique contrôlé et versionné | N–N avec `Card`, avec poids, contexte et provenance |
+| `Format` | Code stable, nom, famille TCG/OCG/MD/historique, territoire, règles de zones et politique de légalité | 1–N avec `FormatSnapshot`, `Banlist` et `Deck` |
+| `FormatSnapshot` | Version immuable du pool et des paramètres à une date d'effet | N–1 `Format`; N–1 `DataSnapshot`; référencé par analyses/decks |
+| `Banlist` | Nom, format, territoire, date d'annonce, date d'effet, source, statut et version | N–1 `Format`; 1–N `BanlistEntry`; référencée par `Deck`/`DeckVersion` |
+| `BanlistEntry` | Carte, limite 0/1/2/3, note et provenance | N–1 `Banlist`; N–1 `Card`; unicité carte/banlist |
+| `Deck` | Identité logique, titre, format, archétype principal, propriétaire facultatif, état et dates | 1–N `DeckVersion`; N–1 `User` optionnel; N–1 `Format` |
+| `DeckVersion` | Snapshot immuable, numéro, parent, banlist, format snapshot, paramètres moteur/LLM, métriques et commentaire | N–1 `Deck`; 1–N `DeckCard`; N–1 `Banlist` et `FormatSnapshot` |
+| `DeckCard` | Version, carte, zone MAIN/EXTRA/SIDE, quantité, verrou utilisateur et origine manuelle/générée | N–1 `DeckVersion`; N–1 `Card`; unicité version/carte/zone |
+| `User` | Identifiant, fournisseur d'authentification, préférences minimales, consentements et dates | 1–N `Deck`; **table différée après MVP**, deck anonyme au MVP |
+| `Matchup` | Deux stratégies/archétypes, format/période, échantillon, métriques, source et confiance | Lié à `Format`, archétypes et données de tournoi ; **différé après MVP** |
+| `DataSource` | Fournisseur, URL, licence/conditions, priorité et type de données | 1–N `DataSnapshot` |
+| `DataSnapshot` | Horodatage, version distante, hash, schéma, statut, volumes et rapport qualité | N–1 `DataSource`; source des faits importés et `FormatSnapshot` |
+
+Principes : deck et version sont séparés pour rendre une analyse reproductible ; banlists et snapshots sont immuables ; les annotations stratégiques ne sont jamais mélangées aux faits officiels ; `User` et `Matchup` restent modélisés mais ne doivent pas imposer leur implémentation au MVP.
+
+### 6.6 Stratégie de sources de données proposée
+
+| Donnée | Source candidate | Stockage local | Mise à jour proposée | Risques / décision |
+|---|---|---|---|---|
+| Cartes, propriétés, textes, archétypes, images | YGOPRODeck API v7 comme source opérationnelle candidate | Snapshot complet ; images auto-hébergées seulement si droits confirmés | Vérification quotidienne de version, import si changement | API communautaire, archétypes éditoriaux, limite 20 req/s, demande de ne pas hotlinker ; conditions d'usage à valider |
+| Texte/référence officielle d'une carte | Base officielle KONAMI/NEURON pour contrôle humain ciblé | Ne pas scraper sans autorisation ; conserver URL/provenance | À la revue des anomalies | Pas d'API publique documentée retenue ; automatisation et licence à clarifier |
+| Banlist TCG EMEA | Page officielle KONAMI Forbidden & Limited | Snapshot immuable avec date d'effet et copie structurée vérifiée | Surveillance quotidienne + vérification humaine à annonce | HTML susceptible de changer ; importer par workflow contrôlé et tests sentinelles |
+| Légalité régionale/date de sortie | Pages KONAMI + dates de sets de la source catalogue | Oui, versionnée par territoire | À chaque nouvelle sortie/import | Produits/dates différents selon territoire ; données tierces à recouper |
+| Règles générales | Rulebook et Tournament Policy KONAMI | Références documentaires, règles codées avec citation/version | À chaque publication de politique | Une règle codée nécessite revue ; le moteur MVP ne couvre pas tous les rulings |
+| Rulings | Base officielle lorsque consultable, corpus autorisé à déterminer | Pas de corpus complet au MVP | Manuel pour cas pilotes | Couverture, structure, langue et droits incertains |
+| Relations/synergies/rôles | Curation interne à partir d'expertise et tests | Oui, avec auteur, justification, confiance et version | À chaque release de contenu | Subjectivité ; revue humaine et distinction fait/heuristique |
+| Decklists/statistiques tournoi | Aucune source retenue au MVP | Non | Après étude dédiée | Licences, biais, doublons, représentativité et données personnelles |
+| Prix | Hors MVP | Non | Sans objet | Volatilité, territoires, affiliation et maintenance |
+
+Liens de référence candidats :
+
+- Catalogue : <https://ygoprodeck.com/api-guide/>
+- Banlist officielle EMEA : <https://www.yugioh-card.com/eu/play/forbidden-and-limited-list/>
+- Légalité des cartes EMEA : <https://www.yugioh-card.com/eu/play/card-legality/>
+- Ressources de jeu KONAMI : <https://www.yugioh-card.com/eu/play/>
+
+### 6.7 Stack technique candidate
+
+| Couche | Choix recommandé | Portée et justification |
+|---|---|---|
+| Monorepo | `pnpm` workspaces + orchestration légère ; Python géré séparément dans le même dépôt | Un seul produit et contrats visibles ; éviter les microservices et outils monorepo lourds au départ |
+| Frontend | Next.js, React, TypeScript strict | Éditeur interactif, routing et rendu souples ; écosystème mûr et contrats typés |
+| UI | Tailwind CSS + composants Radix/shadcn adaptés, sans dépendance au code distant à l'exécution | Construction rapide, accessibilité primitive et personnalisation ; éviter une grosse bibliothèque visuelle rigide |
+| Données frontend | TanStack Query ; état local React ou Zustand seulement si l'éditeur le justifie | Séparer état serveur et brouillon ; ne pas imposer Redux sans besoin |
+| Backend | Python 3.13+, FastAPI, Pydantic v2, Uvicorn | Même langage que moteur/IA, contrats explicites, API OpenAPI et excellent outillage de validation |
+| API | REST JSON `/api/v1`; traitement synchrone tant que les SLO sont tenus | Plus simple que GraphQL ; jobs ajoutés uniquement pour import ou génération réellement longue |
+| Base | PostgreSQL 17+ | Contraintes relationnelles, JSONB ciblé, texte, index et migrations robustes |
+| ORM | SQLAlchemy 2 + Alembic | Séparation domaine/persistance et migrations explicites ; éviter de faire porter les règles métier à l'ORM |
+| Recherche | PostgreSQL trigram/full-text | Suffisant pour noms/alias au MVP ; pas d'Elasticsearch avant mesure |
+| Cache/jobs | Aucun requis au premier incrément ; Redis + worker ultérieurement si mesure | Réduit l'exploitation ; import peut être une commande contrôlée au départ |
+| Deck Engine | Package Python pur, sans accès réseau/DB, architecture ports-adapters | Tests rapides, fonctions déterministes, réutilisable en batch et API |
+| Solveur | Heuristiques explicables d'abord ; OR-Tools seulement si contraintes/scoring l'exigent | Éviter une optimisation opaque et prématurée |
+| LLM | OpenAI Responses API via un port fournisseur, modèle à choisir par évaluation/coût | Sorties structurées et abstraction ; aucun nom de modèle figé avant benchmark |
+| RAG/vector DB | Aucun au MVP | Catalogue relationnel structuré ; ajouter `pgvector` seulement si un corpus documentaire et une évaluation prouvent le besoin |
+| Tests backend | Pytest, Hypothesis, Testcontainers | Règles unitaires, invariants génératifs et intégration PostgreSQL réelle |
+| Tests frontend | Vitest, Testing Library, axe | Composants, parcours clavier et accessibilité |
+| E2E | Playwright | Parcours web complet et multi-navigateur |
+| Qualité | Ruff, mypy/pyright à choisir, ESLint, Prettier, TypeScript strict | Contrôles rapides et reproductibles ; un seul type-checker Python sera retenu |
+| Local | Docker Compose pour PostgreSQL ; applications exécutables nativement ; fichier `.env.example` sans secret | Onboarding simple et boucle de développement rapide |
+| CI/CD | GitHub Actions | Lint, types, tests, migrations, build, audit, artefacts puis staging/production |
+| Hébergement | Vercel pour web + Render/Fly.io/Cloud Run pour API + PostgreSQL managé, à arbitrer selon budget/région | Déploiement simple ; aucune sélection finale avant estimation des coûts et exigences de résidence |
+| Observabilité | OpenTelemetry + Sentry ou service équivalent | Corrélation frontend/API/moteur/LLM et suivi coût/latence |
+
+### 6.8 Architecture logique et responsabilités
+
+```text
+[Web Next.js]
+    │ REST /api/v1 — DTO versionnés
+    ▼
+[FastAPI / Application Services]
+    ├── Catalogue ───────────────► [Repositories PostgreSQL]
+    ├── Deck Use Cases ──────────► [Deck Engine Python pur]
+    │                                  ├── Candidate Generator
+    │                                  ├── Scorer / Optimizer
+    │                                  └── Rules Engine indépendant
+    ├── AI Orchestrator ─────────► [LLM Provider]
+    │        │                         (texte/JSON, jamais source de vérité)
+    │        └── ne reçoit que les faits produits par les moteurs
+    └── Import Application Service► [Source Adapters]
+                                        ├── YGOPRODeck
+                                        └── KONAMI / workflow contrôlé
+```
+
+- **Web** : collecte l'intention, édite un brouillon et présente les résultats ; aucune décision de légalité locale faisant autorité.
+- **Application API** : autorisations, transaction, orchestration, version des contrats, idempotence et journalisation.
+- **Domaine** : entités, valeurs, politiques de format et résultats ; indépendant de FastAPI/SQLAlchemy/LLM.
+- **Rules Engine** : service pur et indépendant de génération ; peut invalider n'importe quelle sortie.
+- **Deck Engine** : consomme un snapshot en mémoire et retourne candidats, métriques et raisons ; aucun accès direct réseau.
+- **Repositories** : traduisent les modèles persistés sans exposer les tables au domaine.
+- **AI Orchestrator** : construit le contexte minimal, valide les schémas et applique les garde-fous ; ne contourne jamais les cas d'usage.
+- **Import** : hors requête utilisateur, idempotent, auditable et capable de publier un snapshot seulement après contrôles qualité.
+- **Monolithe modulaire** : ces frontières sont des modules, pas des services réseau distincts au MVP.
+
+---
+
 # Phases, Epics, Features et Tasks
 
 ## Phase 0 — Conception
@@ -264,6 +502,8 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 - [x] Analyser le cahier des charges initial.
 - [x] Auditer l'état initial du repository.
 - [x] Créer le tableau de bord `ROADMAP.md`.
+- [x] Rédiger une spécification candidate détaillée du MVP avec inclusions, reports et exclusions.
+- [x] Définir le contrat fonctionnel candidat et la définition d'un résultat acceptable.
 - [ ] Valider les personas prioritaires et leurs problèmes principaux.
 - [ ] Valider le parcours principal : sélectionner, construire, éditer, valider, analyser et exporter.
 - [ ] Valider le périmètre inclus, différé et explicitement exclu du MVP.
@@ -273,6 +513,8 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 
 ### Epic 0.2 — Décisions Yu-Gi-Oh! structurantes
 
+- [x] Comparer TCG actuel, Master Duel, multi-format immédiat et architecture multi-format progressive.
+- [x] Documenter la recommandation Option D : architecture multi-format, TCG Advanced EMEA seul au MVP.
 - [ ] Choisir un unique format cible pour le MVP.
 - [ ] Choisir la région, la langue canonique et les langues d'affichage.
 - [ ] Définir précisément les limites Main/Extra/Side du format retenu.
@@ -280,31 +522,47 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 - [ ] Définir ce que signifie « compatible » ou « synergique » dans le MVP.
 - [ ] Définir les catégories fonctionnelles utilisées par l'analyse.
 - [ ] Lister les interactions/rulings hors périmètre et la manière de les signaler.
+- [ ] Choisir cinq archétypes pilotes représentatifs pour la génération et les golden tests.
 
 ### Epic 0.3 — Sources, licences et conformité
 
-- [ ] Comparer les sources de cartes, images, banlists et rulings selon couverture, fraîcheur, stabilité et conditions d'utilisation.
+- [x] Comparer les sources candidates de cartes, images, banlists, règles, rôles et statistiques.
+- [x] Documenter YGOPRODeck comme source opérationnelle candidate et KONAMI comme source officielle de banlist/règles.
 - [ ] Sélectionner la source primaire et une stratégie de repli.
 - [ ] Vérifier les licences, règles d'attribution, droits sur les images et marques.
 - [ ] Documenter la politique de conservation, rafraîchissement et suppression des données externes.
 - [ ] Définir les mentions légales et avertissements nécessaires.
 - [ ] Réaliser un import exploratoire non applicatif pour contrôler les champs et anomalies de la source retenue.
+- [ ] Confirmer si les images peuvent être auto-hébergées dans le produit et selon quelles conditions.
+- [ ] Définir un workflow humain de vérification et publication d'une nouvelle banlist.
 
 ### Epic 0.4 — Architecture et gouvernance
 
+- [x] Définir le pipeline candidat de la demande utilisateur jusqu'à l'explication.
+- [x] Définir la séparation candidate entre système déterministe, algorithmes et LLM.
+- [x] Définir un modèle conceptuel candidat et ses principales relations.
+- [x] Proposer la stack complète, l'architecture logique et les responsabilités des modules.
+- [x] Classer les décisions restantes par niveau de blocage.
 - [ ] Valider le monolithe modulaire, la stack et la structure cible du repository.
 - [ ] Choisir le fournisseur LLM, le modèle initial, le budget et les limites d'usage.
 - [ ] Choisir l'hébergement, la région des données et les environnements.
 - [ ] Écrire les ADR pour les décisions irréversibles ou coûteuses à modifier.
 - [ ] Définir conventions Git, revue, versionnement, secrets et dépendances.
 - [ ] Prioriser le backlog et attribuer dépendances, risques et critères de sortie.
+- [ ] Valider l'absence de RAG/vector database au MVP et les conditions de réévaluation.
+- [ ] Valider le format YDK comme format d'import/export initial.
 
 ### Critères de sortie de la phase 0
 
+- [ ] Le MVP et ses exclusions sont approuvés par le porteur du projet.
 - [ ] Format, banlist, source de données, périmètre MVP et stack sont explicitement approuvés.
 - [ ] Les risques juridiques bloquants ont une réponse acceptable.
 - [ ] Les user stories MVP ont des critères d'acceptation testables.
 - [ ] Les ADR structurantes et le modèle conceptuel sont documentés.
+- [ ] La séparation LLM/algorithme/règles et le pipeline sont approuvés.
+- [ ] Les archétypes pilotes et le golden set initial sont définis.
+- [ ] Les objectifs de performance, qualité, coût et accessibilité sont chiffrés.
+- [ ] Toutes les décisions 🔴 sont prises et aucune inconnue bloquante ne subsiste.
 
 ---
 
@@ -824,7 +1082,7 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 
 ---
 
-## 6. Risques et mitigations
+## 9. Risques et mitigations
 
 | Risque | Impact | Mitigation prévue |
 |---|---|---|
@@ -844,43 +1102,76 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 
 ---
 
-## 7. Registre des décisions à prendre avant le code
+## 10. Registre des décisions à prendre avant le code
 
-- [ ] **D-001** — Format exact du MVP et règles applicables.
-- [ ] **D-002** — Banlist initiale, source officielle et fréquence de mise à jour.
-- [ ] **D-003** — Source des cartes/images, licence et politique d'attribution.
-- [ ] **D-004** — Langue canonique des données et langues de l'interface.
-- [ ] **D-005** — Archétypes couverts par le premier jeu de référence.
-- [ ] **D-006** — Définition mesurable d'une bonne proposition de deck.
-- [ ] **D-007** — Stack recommandée ou alternatives retenues.
-- [ ] **D-008** — Fournisseur/modèle IA, budget mensuel et politique de rétention.
-- [ ] **D-009** — Hébergeur, région, budget et objectifs de service.
-- [ ] **D-010** — Comptes utilisateurs exclus ou inclus dans le MVP.
-- [ ] **D-011** — Format d'import/export du MVP.
-- [ ] **D-012** — Télémétrie autorisée et exigences de confidentialité.
+Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » décrit la proposition d'architecture, pas une validation. Après accord explicite, cocher la décision et la consigner dans un ADR ; ne jamais la retirer du registre.
 
-Les décisions validées devront être consignées dans des ADR sans être retirées de cette liste ; la case indiquera leur résolution.
+### 🔴 Bloquantes
+
+| État | ID et question | Options | Recommandation | Raison |
+|---|---|---|---|---|
+| [ ] | **D-001 — Quel format MVP ?** | TCG actuel ; Master Duel ; multi-format ; architecture multi-format/un format | Option D, TCG Advanced EMEA uniquement | Source officielle publique, Side Deck pertinent et voie d'extension sans multiplier le MVP |
+| [ ] | **D-002 — Quelle banlist et quelle temporalité ?** | Toujours « latest » ; version figée ; choix utilisateur | Snapshot officiel KONAMI applicable à la génération, affiché et conservé | Reproductibilité et absence de changement silencieux |
+| [ ] | **D-003 — Quelle source de catalogue ?** | YGOPRODeck ; source officielle automatisée ; dataset tiers | YGOPRODeck API v7 en snapshot local, avec contrôle ciblé KONAMI | API documentée et multilingue ; découplage par adaptateur indispensable |
+| [ ] | **D-004 — Quelles langues ?** | Anglais seul ; français seul ; canonique anglais + UI française | IDs numériques + anglais canonique, interface française, noms FR lorsqu'ils sont disponibles | Robustesse des identifiants et expérience du public initial |
+| [ ] | **D-005 — Quel périmètre fonctionnel exact ?** | MVP minimal de validation ; génération complète proposée ; comptes inclus | Contrat de la section 6.1, sans compte ni optimisation automatique du Side Deck | Démontrer la valeur bout en bout sans infrastructure de compte ou données de matchup |
+| [ ] | **D-006 — Quelle architecture/stack ?** | TypeScript complet ; Python complet ; Next.js + FastAPI/Python | Monolithe modulaire Next.js/TypeScript + FastAPI/Python + PostgreSQL | UI typée et moteur/IA Python, avec limites de modules explicites |
+| [ ] | **D-007 — Quel modèle conceptuel ?** | Deck mutable ; versions immuables ; schéma minimal sans provenance | Modèle section 6.5 avec `DeckVersion`, snapshots et provenance | Reproductibilité des analyses et évolution des banlists |
+| [ ] | **D-008 — Quelles sources/licences sont acceptables ?** | Images distantes ; auto-hébergement ; aucune image au départ | Valider juridiquement API, textes, images et marques avant import ; démarrer sans images si nécessaire | Un doute de licence peut bloquer la diffusion, contrairement à une absence temporaire d'illustrations |
+
+### 🟠 Importantes
+
+| État | ID et question | Options | Recommandation | Raison |
+|---|---|---|---|---|
+| [ ] | **D-009 — Quels archétypes pilotes ?** | Un seul ; cinq représentatifs ; catalogue entier non annoté | Cinq couvrant Fusion/Synchro/Xyz/Link et complexités différentes, choisis avec un expert | Jeu d'évaluation utile sans annoter tout le catalogue |
+| [ ] | **D-010 — Comment définir la qualité d'un deck ?** | Avis expert ; score heuristique ; résultats tournoi | Légalité obligatoire + grille de rôles + golden decks revus, sans prétendre mesurer la puissance absolue | Critère testable malgré l'absence de simulateur et de données compétitives fiables |
+| [ ] | **D-011 — Quel LLM et quel budget ?** | Fournisseur unique ; multi-fournisseur ; local | Port fournisseur, benchmark de modèles compatibles JSON, plafond mensuel et coût par génération | Choix fondé sur qualité/coût/latence réels, pas sur la popularité |
+| [ ] | **D-012 — RAG et embeddings ?** | Dès le MVP ; PostgreSQL/FTS ; pgvector plus tard | Aucun RAG/vector DB au MVP | Les données utiles sont structurées ; une nouvelle infrastructure n'est justifiée que par un corpus documentaire évalué |
+| [ ] | **D-013 — Quel format d'import/export ?** | YDK ; JSON interne ; CSV ; formats tiers | YDK utilisateur + JSON interne versionné | Compatibilité pratique et contrat interne sans perte |
+| [ ] | **D-014 — Quels objectifs non fonctionnels ?** | Best effort ; SLO chiffrés | p95 moteur < 3 s, IA < 15 s, seuils coût/erreur à fixer | Rend les arbitrages et le Go/No-Go mesurables |
+| [ ] | **D-015 — Quelle politique de mise à jour des données ?** | Temps réel ; quotidien ; manuel | Détection quotidienne, import contrôlé, publication après validation | Réactivité raisonnable sans exposer automatiquement une source cassée |
+| [ ] | **D-016 — Quelle confidentialité/télémétrie ?** | Aucune ; strict minimum ; analytics complet | Événements produit minimaux avec consentement et aucune demande brute conservée par défaut | Mesurer le MVP tout en minimisant les données personnelles |
+
+### 🟢 Secondaires
+
+| État | ID et question | Options | Recommandation | Raison |
+|---|---|---|---|---|
+| [ ] | **D-017 — Quel hébergement final ?** | Vercel + PaaS API ; Cloud Run ; PaaS unique | Mesurer localement puis comparer coût, région et simplicité avant Phase 9 | N'empêche pas le domaine et l'API de démarrer |
+| [ ] | **D-018 — Quel état frontend ?** | React seul ; Zustand ; Redux | TanStack Query + état local, Zustand uniquement si complexité observée | Réduire la surface technique initiale |
+| [ ] | **D-019 — Redis/worker dès le départ ?** | Oui ; non ; service cloud | Non, ajouter après mesure des imports et latences | PostgreSQL et commandes contrôlées suffisent au premier incrément |
+| [ ] | **D-020 — Quel outil de typage Python ?** | mypy ; pyright | Petit spike puis un seul outil en CI | Évite les configurations concurrentes ; impact limité sur l'architecture |
+| [ ] | **D-021 — Quelle solution d'observabilité ?** | Sentry ; fournisseur cloud ; stack OpenTelemetry | Instrumentation OpenTelemetry, backend choisi avant staging | Préserver la portabilité sans retarder le domaine |
+| [ ] | **D-022 — Comptes après MVP ?** | Auth interne ; OAuth/OIDC ; service managé | OIDC/service managé à évaluer seulement lorsque la sauvegarde cloud est priorisée | La persistance locale suffit à la validation initiale |
+
+### Synthèse des validations attendues
+
+- [ ] Le porteur du projet approuve ou amende D-001 à D-008.
+- [ ] Les décisions approuvées sont transformées en ADR datés.
+- [ ] Les conséquences des amendements sont propagées dans le modèle, les phases et les risques.
+- [ ] Les décisions D-009 à D-016 ont un propriétaire et une échéance antérieure à leur première implémentation.
 
 ---
 
-## 8. Première tâche concrète
+## 11. Première tâche concrète
 
 ### À réaliser ensuite : valider le format et la banlist du MVP
 
-- [ ] Comparer au minimum TCG, OCG et Master Duel selon disponibilité des données, stabilité des règles, audience et coût de maintenance.
+- [x] Comparer les stratégies TCG, Master Duel, multi-format immédiat et architecture multi-format progressive.
 - [ ] Choisir un format unique pour la première livraison.
 - [ ] Identifier sa source de banlist autoritative et une version de départ datée.
-- [ ] Documenter tailles de zones, limites de copies et cas spéciaux pris en charge.
+- [x] Documenter la proposition de tailles de zones, limites de copies et cas spéciaux pris en charge.
 - [ ] Faire approuver la décision et la consigner dans l'ADR **D-001/D-002**.
 
 **Critère d'acceptation :** un document de décision nomme sans ambiguïté le format, la région, la date/version de banlist, la source, les règles de taille et les limites que le MVP promet de valider.
 
 ---
 
-## 9. Journal de progression
+## 12. Journal de progression
 
 | Date | Changement | État |
 |---|---|---|
 | 2026-09-29 | Analyse initiale du cahier des charges et constat d'un dépôt sans implémentation | Terminé |
 | 2026-09-29 | Création de la roadmap initiale, du périmètre MVP et de l'architecture proposée | Terminé |
 | 2026-09-29 | Ouverture de la décision sur le format et la banlist du MVP | En cours |
+| 2026-09-29 | Rédaction de la spécification candidate de Phase 0 : MVP, formats, pipeline, LLM, modèle, sources, stack et architecture | Terminé |
+| 2026-09-29 | Classement des décisions D-001 à D-022 ; D-001 à D-008 soumises à validation | En attente de décision |
