@@ -10,13 +10,15 @@ Le MVP a besoin d'un catalogue structuré de cartes, consultable sans dépendre 
 
 ## Decision
 
-YGOPRODeck est la source opérationnelle principale du catalogue MVP. Les données nécessaires sont importées dans PostgreSQL sous forme de snapshots locaux, avec identifiants externes, provenance, version et rapport d'import.
+YGOPRODeck est la source opérationnelle principale du catalogue MVP. La cible de production est le catalogue général le plus complet que la source et le périmètre légal TCG Advanced EMEA permettent, et non un sous-catalogue limité à des archétypes présélectionnés. Les données nécessaires sont importées dans PostgreSQL sous forme de snapshots locaux, avec identifiants externes, provenance, version et rapport d'import.
 
 Les sources KONAMI restent la référence pour les banlists, règles, légalité et informations officielles pertinentes. Le Rules Engine n'est pas couplé au modèle ou aux valeurs de YGOPRODeck ; il consomme le modèle canonique interne.
 
 ## Consequences
 
 - L'application continue de consulter son catalogue si l'API externe est indisponible.
+- L'ajout d'une carte ou d'un archétype au catalogue ne requiert aucune modification d'architecture.
+- Les jeux de données réduits utilisés en développement sont des fixtures et ne définissent pas la couverture fonctionnelle de production.
 - Un adaptateur traduit YGOPRODeck vers le schéma canonique.
 - Les dérives de schéma et différences avec les sources officielles doivent être détectées.
 - Les conditions d'utilisation des données et images restent soumises à ADR-0008.

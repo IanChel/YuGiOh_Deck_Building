@@ -25,9 +25,9 @@
 | Élément | État |
 |---|---|
 | Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
-| Tâche en cours | Finaliser les prérequis documentaires et décisions de contenu de la Phase 1 |
-| Prochaine tâche | Sélectionner et valider les archétypes pilotes du MVP selon les critères documentés |
-| Blocages | D-008 juridique bloque toute publication/distribution ; la sélection des archétypes pilotes bloque leur annotation, mais pas la modélisation ni l'import exploratoire local |
+| Tâche en cours | Revue par le porteur du projet de la proposition D-009 et de sa matrice de couverture |
+| Prochaine tâche | Approuver ou amender les dix familles de fixtures et les scénarios indépendants proposés |
+| Blocages | D-008 juridique bloque toute publication/distribution ; D-009 bloque les fixtures stratégiques de référence, mais ne limite ni le catalogue de production ni le schéma générique |
 | Décisions récentes | D-001 à D-007 acceptées et consignées en ADR ; TCG Advanced EMEA, snapshots immuables, YGOPRODeck répliqué localement, UI française, périmètre MVP et stack monolithique validés |
 
 ### Règles de mise à jour
@@ -72,7 +72,7 @@ Construire et optimiser un deck légal à partir de données traçables, avec un
 
 - Catalogue consultable de cartes avec recherche et filtres essentiels.
 - Un format officiel clairement identifié et une banlist versionnée.
-- Sélection d'un archétype ou de cartes imposées.
+- Construction manuelle libre à partir de tout le catalogue disponible, avec archétype optionnel et cartes imposées/exclues si l'utilisateur le souhaite.
 - Éditeur Main Deck / Extra Deck / Side Deck avec ajout, retrait et quantités.
 - Validation déterministe de la taille des zones, des limites de copies et de la banlist.
 - Génération algorithmique d'une proposition de deck à partir de données et règles locales.
@@ -222,7 +222,7 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 ### Pipeline cible
 
 1. Normaliser la requête utilisateur en objectif structuré.
-2. Résoudre le format, la banlist, l'archétype et les cartes imposées.
+2. Résoudre le format, la banlist, le contexte/archétype facultatif et les cartes imposées.
 3. Construire un pool de candidats provenant exclusivement du catalogue local.
 4. Appliquer les contraintes dures : disponibilité, copies, zones, banlist et taille.
 5. Scorer les candidats selon rôles, synergies, conflits, courbe et profil demandé.
@@ -261,7 +261,7 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 |---|---|---|
 | Choisir format et banlist | **Indispensable MVP** | Un seul format et une version de banlist explicite ; aucun choix multi-format dans l'interface initiale |
 | Rechercher une carte | **Indispensable MVP** | Recherche par nom avec fiche minimale, filtres type et archétype |
-| Choisir un archétype | **Indispensable MVP** | Sélection dans un ensemble pilote annoté et supporté |
+| Utiliser un archétype facultatif | **Indispensable MVP** | Filtrer ou indiquer un archétype comme contexte sans limiter la construction aux données pilotes |
 | Imposer/exclure/verrouiller des cartes | **Indispensable MVP** | Identifiants du catalogue uniquement, quantité comprise entre 0 et la limite légale |
 | Générer un deck | **Indispensable MVP** | Une proposition Main + Extra Deck lorsque pertinent ; Side Deck éditable mais non optimisé automatiquement |
 | Éditer le deck | **Indispensable MVP** | Ajouter, retirer et modifier une quantité ; validation après chaque changement |
@@ -288,8 +288,8 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 
 #### Contrat fonctionnel du MVP validé
 
-1. L'utilisateur choisit l'un des archétypes pilotes ou part d'une liste existante.
-2. Il ajoute des cartes obligatoires, interdit certaines cartes et peut formuler une intention libre courte.
+1. L'utilisateur part d'un deck vide, importe une liste existante ou demande une génération ; sélectionner un archétype reste facultatif.
+2. Il recherche et ajoute librement toute carte du catalogue, peut imposer/exclure/verrouiller des cartes et formuler une intention courte.
 3. Le système affiche le format et la banlist datée qui seront appliqués.
 4. Le moteur génère une unique proposition légale ou explique précisément pourquoi aucune solution n'a été trouvée.
 5. L'utilisateur modifie Main/Extra/Side et reçoit des erreurs déterministes en temps réel.
@@ -306,6 +306,17 @@ Cette arborescence est une cible de conception, pas l'état actuel du dépôt.
 - L'analyse sépare explicitement règles, heuristiques et texte généré.
 - Une réponse sans solution est préférable à une liste illégale ou inventée.
 - La génération algorithmique cible une réponse p95 inférieure à 3 secondes hors import ; l'explication IA cible un p95 inférieur à 15 secondes.
+
+#### Séparation explicite des quatre périmètres
+
+| Périmètre | Définition contractuelle |
+|---|---|
+| **Production data scope** | Catalogue général aussi complet que la source validée et le périmètre légal TCG Advanced EMEA le permettent ; aucune liste fermée d'archétypes supportés |
+| **Test data scope** | Petit ensemble versionné de cartes, archétypes, relations, cas sans archétype et golden decks servant uniquement aux fixtures et évaluations |
+| **User deckbuilding scope** | Construction manuelle libre, import ou génération à partir de toutes les cartes exposées ; l'archétype est un filtre/contexte optionnel |
+| **AI recommendation scope** | Analyse du `DeckState`, récupération déterministe de candidats dans tout le catalogue légal, scoring par contraintes/rôles/relations connues, puis contextualisation et explication par le LLM |
+
+Le niveau d'annotation stratégique d'une carte peut influencer la richesse d'une recommandation, mais jamais sa visibilité dans le catalogue, sa capacité à être ajoutée manuellement ou sa validation réglementaire.
 
 ### 6.2 Comparaison des stratégies de format
 
@@ -392,14 +403,14 @@ Entrée formulaire ou langage naturel
 | Entité | Rôle et données principales | Relations |
 |---|---|---|
 | `Card` | Identité canonique, passcode, noms localisés, texte, catégorie, type/race, attribut, niveau/rang/link, ATK/DEF, échelle, statut et provenance | N–N avec `Archetype`, 1–N avec `DeckCard` et `BanlistEntry`, N–N dirigée via `CardRelation` |
-| `Archetype` | Nom canonique, alias localisés, description courte, statut de support MVP | N–N avec `Card`; 1–N avec profils/annotations stratégiques futurs |
+| `Archetype` | Nom canonique, alias localisés et description courte ; dimension facultative de recherche/analyse, sans statut de « support MVP » | N–N avec `Card`; 1–N avec profils/annotations stratégiques futurs |
 | `CardRelation` | Carte source/cible, type de relation, sens, poids, justification, provenance, confiance et version | Deux relations vers `Card`; optionnellement limitée à un `Format` |
 | `FunctionalTag` | Rôle stratégique contrôlé et versionné | N–N avec `Card`, avec poids, contexte et provenance |
 | `Format` | Code stable, nom, famille TCG/OCG/MD/historique, territoire, règles de zones et politique de légalité | 1–N avec `FormatSnapshot`, `Banlist` et `Deck` |
 | `FormatSnapshot` | Version immuable du pool et des paramètres à une date d'effet | N–1 `Format`; N–1 `DataSnapshot`; référencé par analyses/decks |
 | `Banlist` | Nom, format, territoire, date d'annonce, date d'effet, source, statut et version | N–1 `Format`; 1–N `BanlistEntry`; référencée par `Deck`/`DeckVersion` |
 | `BanlistEntry` | Carte, limite 0/1/2/3, note et provenance | N–1 `Banlist`; N–1 `Card`; unicité carte/banlist |
-| `Deck` | Identité logique, titre, format, archétype principal, propriétaire facultatif, état et dates | 1–N `DeckVersion`; N–1 `User` optionnel; N–1 `Format` |
+| `Deck` | Identité logique, titre, format, contexte stratégique/archétype facultatif, propriétaire facultatif, état et dates | 1–N `DeckVersion`; N–1 `User` optionnel; N–1 `Format` |
 | `DeckVersion` | Snapshot immuable, numéro, parent, banlist, format snapshot, paramètres moteur/LLM, métriques et commentaire | N–1 `Deck`; 1–N `DeckCard`; N–1 `Banlist` et `FormatSnapshot` |
 | `DeckCard` | Version, carte, zone MAIN/EXTRA/SIDE, quantité, verrou utilisateur et origine manuelle/générée | N–1 `DeckVersion`; N–1 `Card`; unicité version/carte/zone |
 | `User` | Identifiant, fournisseur d'authentification, préférences minimales, consentements et dates | 1–N `Deck`; **table différée après MVP**, deck anonyme au MVP |
@@ -524,7 +535,7 @@ Liens de référence candidats :
 - [x] Limiter la notion de synergie aux relations explicitement connues et présentes dans les données.
 - [ ] Définir les catégories fonctionnelles utilisées par l'analyse.
 - [ ] Lister les interactions/rulings hors périmètre et la manière de les signaler.
-- [ ] Choisir cinq archétypes pilotes représentatifs pour la génération et les golden tests.
+- [ ] Définir et valider D-009 : un dataset pilote représentatif réservé aux fixtures, sans effet sur la couverture de production.
 
 ### Epic 0.3 — Sources, licences et conformité
 
@@ -574,9 +585,9 @@ Liens de référence candidats :
 
 **Objectif :** disposer d'un catalogue local fiable, versionné et interrogeable.
 
-**Dépendances :** ADR-0001 à ADR-0007 ; D-008 n'empêche que les contenus concernés et toute publication/distribution. La sélection des archétypes pilotes est requise avant leur annotation, pas avant le schéma générique du catalogue.
+**Dépendances :** ADR-0001 à ADR-0007 ; D-008 n'empêche que les contenus concernés et toute publication/distribution. D-009 est requis avant les fixtures stratégiques, mais ne conditionne ni le schéma générique ni la couverture du catalogue de production.
 
-**Résultat attendu :** un snapshot PostgreSQL reproductible et immuable du catalogue TCG utile au MVP et un snapshot de banlist TCG Advanced EMEA, chacun avec provenance, version, rapport d'intégrité et procédure contrôlée de publication/rollback.
+**Résultat attendu :** un snapshot PostgreSQL reproductible et immuable du catalogue général aussi complet que YGOPRODeck et le périmètre légal TCG Advanced EMEA le permettent, ainsi qu'un snapshot de banlist, chacun avec provenance, version, rapport d'intégrité et procédure contrôlée de publication/rollback.
 
 ### Données nécessaires pour le MVP
 
@@ -586,7 +597,7 @@ Liens de référence candidats :
 - **Format :** code `TCG_ADVANCED_EMEA`, territoire, règles de tailles Main/Extra/Side, limite normale de copies et version de règles.
 - **Légalité :** présence dans le pool régional et date d'effet vérifiable ; une information absente reste inconnue.
 - **Banlist :** source officielle, dates d'annonce/effet/snapshot et entrées 0/1/2, sans écrasement historique.
-- **Relations stratégiques :** synergies/conflits et rôles fonctionnels uniquement pour les archétypes pilotes, avec justification, provenance, confiance et version.
+- **Relations stratégiques :** synergies/conflits et rôles fonctionnels disponibles, avec justification, provenance, confiance et version ; couverture partielle explicitement admise sans réduire le catalogue.
 - **Audit :** source, version distante, instant de collecte, hash du contenu brut, schéma d'import, volumes, erreurs et statut `staged/validated/published/rejected`.
 - **Hors Phase 1 MVP :** prix, tournois, métagame, matchups, rulings exhaustifs, données de comptes et historique utilisateur.
 
@@ -619,11 +630,15 @@ PublishedDataset
 - [x] Définir le schéma conceptuel final de la couche données.
 - [x] Définir YGOPRODeck comme source opérationnelle et KONAMI comme référence officielle.
 - [x] Définir le cycle de vie candidat `staged → validated → published` avec snapshots immuables.
-- [ ] Sélectionner et valider les archétypes pilotes du MVP.
-  - [ ] Choisir un nombre limité permettant une annotation et une revue réalistes.
+- [x] Proposer dix familles de fixtures, une matrice de couverture, les lacunes et les scénarios indépendants de D-009.
+- [x] Réaliser la revue finale de cohérence : redondances, mécaniques, recommandations, incompatibilités et risques de légalité.
+- [ ] Définir et valider le dataset/archetypes pilotes de test D-009.
+  - [ ] Choisir un volume limité permettant une annotation et une revue réalistes.
   - [ ] Couvrir plusieurs mécaniques d'Extra Deck et profils de construction.
   - [ ] Privilégier des archétypes aux cartes, textes et decklists de référence accessibles.
   - [ ] Éviter que tous les pilotes dépendent d'interactions/rulings hors périmètre.
+  - [ ] Inclure au moins un deck sans archétype et des cartes génériques/hors jeux pilotes.
+  - [ ] Vérifier que les tests interrogent le même pipeline que le catalogue complet.
   - [ ] Faire approuver la liste et les critères de réussite par une personne compétente sur le jeu.
 - [ ] Clarifier D-008 pour chaque catégorie de contenu avant sa publication ou distribution.
 - [ ] Définir la liste minimale des `FunctionalTag` et types de `CardRelation` utilisés par le MVP.
@@ -697,7 +712,7 @@ PublishedDataset
 
 ### Ordre d'exécution de la Phase 1
 
-1. Valider les archétypes pilotes et les vocabulaires stratégiques minimaux.
+1. Valider le dataset pilote D-009 et les vocabulaires stratégiques minimaux, sans en faire une frontière fonctionnelle.
 2. Approuver le dictionnaire de données et les contraintes du schéma logique.
 3. Approuver les mappings et contrats des sources.
 4. Définir fixtures, contrôles qualité et critères de publication avant l'importateur.
@@ -717,8 +732,9 @@ PublishedDataset
 - [ ] Les snapshots publiés sont immuables et un rollback a été testé.
 - [ ] Les contrôles et fixtures passent automatiquement ; aucun défaut `blocking` ne reste ouvert.
 - [ ] Le rapport d'intégrité contient volumes, anomalies, dérives et versions publiées.
-- [ ] Le catalogue permet les recherches MVP par nom, type et archétype dans les objectifs de performance définis.
-- [ ] Les archétypes pilotes ont des rôles/relations minimaux revus sans prétendre couvrir les interactions inconnues.
+- [ ] Le catalogue général permet les recherches MVP par nom, texte, type, attribut, niveau/rang/link et archétype selon les champs disponibles.
+- [ ] Le dataset pilote a des rôles/relations minimaux revus et démontre le moteur sans définir la couverture de production.
+- [ ] Une carte hors dataset pilote peut être recherchée, ajoutée manuellement et validée réglementairement.
 
 ---
 
@@ -797,15 +813,18 @@ PublishedDataset
 ### Epic 3.2 — Ontologie stratégique minimale
 
 - [ ] Définir les rôles fonctionnels retenus pour le MVP.
-- [ ] Annoter un premier ensemble d'archétypes et staples avec provenance/confiance.
+- [ ] Annoter le dataset pilote et des cartes génériques avec provenance/confiance, uniquement comme base de test initiale.
 - [ ] Modéliser synergies, conflits, prérequis et verrous importants.
 - [ ] Distinguer faits vérifiés, règles dérivées et appréciations heuristiques.
 - [ ] Créer une procédure de revue et correction des annotations.
+- [ ] Garantir qu'une absence d'annotation produit « information inconnue » et non une interaction inventée.
 
-### Epic 3.3 — Génération algorithmique
+### Epic 3.3 — Génération et recommandation algorithmiques
 
-- [ ] Définir l'entrée normalisée : archétype, cartes imposées, cartes exclues, style et format.
-- [ ] Construire le pool de candidats sans faire appel au LLM.
+- [ ] Définir l'entrée normalisée : état complet du deck, contexte/archétype facultatif, cartes imposées/exclues, style et format.
+- [ ] Construire le pool de candidats depuis l'ensemble du catalogue légal sans faire appel au LLM.
+- [ ] Exclure cartes déjà au maximum, cartes illégales, zones incompatibles et contraintes explicites.
+- [ ] Classer les candidats selon besoins détectés, rôles, compatibilités et relations connues.
 - [ ] Appliquer les contraintes dures avant le scoring.
 - [ ] Définir des scores explicables pour rôles, synergies, cohérence et conflits.
 - [ ] Assembler les moteurs, cartes de support, staples et cartes techniques.
@@ -852,7 +871,7 @@ PublishedDataset
 
 ### Epic 4.2 — Compréhension de la demande
 
-- [ ] Extraire format, archétype, cartes imposées/exclues et préférence de style.
+- [ ] Extraire format, contexte/archétype facultatif, cartes imposées/exclues et préférence de style.
 - [ ] Résoudre les noms vers des identifiants du catalogue.
 - [ ] Signaler ambiguïtés et demander confirmation uniquement lorsque nécessaire.
 - [ ] Rejeter les identifiants ou contraintes inventés.
@@ -904,10 +923,11 @@ PublishedDataset
 ### Epic 5.2 — Catalogue et sélection
 
 - [ ] Créer l'accueil avec proposition de valeur et point d'entrée clair.
-- [ ] Créer la recherche de cartes avec filtres, pagination et états vides.
+- [ ] Créer la recherche sur le catalogue général avec nom, texte, type, attribut, niveau/rang/link, type de monstre et archétype selon les données disponibles.
 - [ ] Créer la fiche carte avec données et provenance utiles.
-- [ ] Créer la sélection d'archétype, format, banlist et préférences.
+- [ ] Créer les filtres/contexte facultatifs d'archétype ; ne jamais imposer une sélection pour commencer un deck.
 - [ ] Permettre d'imposer, exclure ou verrouiller une carte.
+- [ ] Permettre la construction entièrement manuelle depuis un deck vide.
 
 ### Epic 5.3 — Deck Editor
 
@@ -1229,7 +1249,7 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | État | ID et question | Options | Recommandation | Raison |
 |---|---|---|---|---|
 | [ ] | **D-008 — Quelles sources/licences sont acceptables ?** | Images distantes ; auto-hébergement ; contenu minimal ; conditions distinctes local/public/commercial | Clarifier juridiquement API, données, textes, images et marques avant publication/distribution | Le développement local peut avancer avec des fixtures prudentes, mais aucune conclusion juridique n'est acquise |
-| [ ] | **D-009 — Quels archétypes pilotes ?** | Un seul ; cinq représentatifs ; catalogue entier non annoté | Cinq couvrant Fusion/Synchro/Xyz/Link et complexités différentes, choisis avec un expert | Jeu d'évaluation utile sans annoter tout le catalogue |
+| [ ] | **D-009 — Quel jeu de données/archétypes pilotes pour valider le moteur ?** | Petit corpus par mécanique ; corpus par complexité stratégique ; combinaison incluant cartes génériques et deck sans archétype | **Proposition à valider :** Blue-Eyes ; Branded/Despia ; Swordsoul/Tenyi ; Purrely ; Salamangreat ; D/D/D ; Drytron ; Labrynth ; Sky Striker ; Floowandereeze, complétés par des scénarios sans archétype et hors dataset | Fixtures et golden tests représentatifs uniquement ; aucune limitation du catalogue, de la construction utilisateur ou du pool de candidats de production |
 | [ ] | **D-010 — Comment définir la qualité d'un deck ?** | Avis expert ; score heuristique ; résultats tournoi | Légalité obligatoire + grille de rôles + golden decks revus, sans prétendre mesurer la puissance absolue | Critère testable malgré l'absence de simulateur et de données compétitives fiables |
 | [ ] | **D-011 — Quel LLM et quel budget ?** | Fournisseur unique ; multi-fournisseur ; local | Port fournisseur, benchmark de modèles compatibles JSON, plafond mensuel et coût par génération | Choix fondé sur qualité/coût/latence réels, pas sur la popularité |
 | [ ] | **D-012 — RAG et embeddings ?** | Dès le MVP ; PostgreSQL/FTS ; pgvector plus tard | Aucun RAG/vector DB au MVP | Les données utiles sont structurées ; une nouvelle infrastructure n'est justifiée que par un corpus documentaire évalué |
@@ -1262,15 +1282,16 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 
 ## 11. Première tâche concrète
 
-### À réaliser ensuite : sélectionner et valider les archétypes pilotes du MVP
+### À réaliser ensuite : définir et valider le dataset pilote D-009
 
-- [ ] Fixer le nombre maximal d'archétypes que l'équipe peut annoter et revoir pendant le MVP.
-- [ ] Établir une liste candidate à partir de critères objectifs, sans retenir automatiquement les archétypes les plus populaires.
-- [ ] Vérifier la diversité des mécaniques, la disponibilité des cartes et la complexité des interactions.
+- [ ] Fixer le volume maximal de cartes, archétypes et scénarios que l'équipe peut annoter et revoir pour les tests.
+- [x] Établir une liste candidate à partir de critères objectifs, sans retenir automatiquement les archétypes les plus populaires.
+- [x] Vérifier la diversité des mécaniques, de la complexité et des contraintes couvertes par une matrice.
 - [ ] Estimer pour chaque candidat le volume de rôles, synergies, conflits et golden decks à documenter.
+- [x] Ajouter au plan un scénario de deck sans archétype et des cartes hors corpus pilote.
 - [ ] Faire approuver la liste finale et consigner D-009.
 
-**Critère d'acceptation :** une liste limitée d'archétypes est explicitement approuvée, chaque choix est justifié par les critères de couverture, données disponibles, complexité testable et effort d'annotation, et aucun archétype supplémentaire n'est implicitement considéré comme supporté.
+**Critère d'acceptation :** un corpus de test limité est explicitement approuvé et justifié par sa couverture des mécaniques, données disponibles, complexité testable et effort d'annotation. La décision et les tests affirment qu'il ne définit ni les cartes/archétypes « supportés », ni le catalogue de production, ni le pool de recommandations.
 
 ---
 
@@ -1286,3 +1307,6 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-29 | Acceptation des décisions D-001 à D-007 et création de leurs ADR | Terminé |
 | 2026-09-29 | Documentation de D-008 en statut `Proposed` ; clarification requise avant publication/distribution | En attente |
 | 2026-09-29 | Plan détaillé de la Phase 1 — données, schéma, import, synchronisation, qualité et tests | Terminé, implémentation non commencée |
+| 2026-09-29 | Clarification des périmètres production/test/construction/recommandation ; D-009 reformulée sans limitation fonctionnelle | Terminé, D-009 reste proposée |
+| 2026-09-29 | Proposition D-009 de dix familles, matrice de couverture, lacunes et cas indépendants documentés | En attente de validation explicite |
+| 2026-09-29 | Revue finale D-009 : aucun remplacement requis, redondances utiles, gate de légalité EMEA et micro-fixtures confirmés | D-009 reste `Proposed` |
