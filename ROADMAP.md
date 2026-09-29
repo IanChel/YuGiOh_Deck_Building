@@ -26,9 +26,9 @@
 |---|---|
 | Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
 | Tâche en cours | Préparer le dictionnaire de données et le schéma logique de Phase 1 |
-| Prochaine tâche | Spécifier `Archetype`, ses alias et la relation d'appartenance structurelle avec `Card` |
+| Prochaine tâche | Spécifier `Format`, `FormatSnapshot` et les paramètres TCG Advanced EMEA |
 | Blocages | D-008 juridique bloque toute publication/distribution ; aucun blocage D-009 ne subsiste pour la spécification de Phase 1 |
-| Décisions récentes | D-001 à D-007 et D-009 à D-013 acceptées ; D-013 fixe les types contrôlés intrinsèques de `CardSnapshot` et la quarantaine des valeurs externes inconnues |
+| Décisions récentes | D-001 à D-007 et D-009 à D-014 acceptées ; D-014 fixe l'appartenance structurelle plusieurs-à-plusieurs, sa provenance et la quarantaine des archétypes non mappés |
 
 ### Règles de mise à jour
 
@@ -1257,7 +1257,7 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | [x] | **D-011 — Quelles frontières conceptuelles pour l'entité `Card` ?** | Identité stable minimale ; propriétés/localisations versionnées ; références et disponibilités séparées | **Accepté :** `Card` minimal, `CardSnapshot` par snapshot, localisations et alias séparés, appartenance structurelle sourcée, disponibilité versionnée et références externes typées | Aucun choix de stockage physique ; images soumises à D-008 ; fusion d'identités et `Series` reportées |
 | [x] | **D-012 — Comment représenter les localisations et le fallback linguistique ?** | Localisations par snapshot ; anglais canonique ; français facultatif ; alias séparés | **Accepté :** rattachement `(Card, CatalogueSnapshot)`, fallback champ par champ, états `COMPLETE`/`PARTIAL`/`UNAVAILABLE`, provenance explicite et alias validés | Aucune traduction LLM non revue n'est officielle ; import/export par identifiants ; D-008 reste distincte |
 | [x] | **D-013 — Quels types contrôlés structurent `CardSnapshot` ?** | Chaînes libres ; catégories combinatoires ; ensembles contrôlés et domaines qualifiés | **Accepté :** catégorie principale, classifications/capacités multiples, races normatives, attributs, domaines Spell/Trap, propriétés numériques, Link et Pendulum | `UNKNOWN` distinct de `NOT_APPLICABLE` ; aucune valeur `INVALID`/`OTHER` ; quarantaine et publication bloquée si mapping requis absent |
-| [ ] | **D-014 — Quels objectifs non fonctionnels ?** | Best effort ; SLO chiffrés | p95 moteur < 3 s, IA < 15 s, seuils coût/erreur à fixer | Rend les arbitrages et le Go/No-Go mesurables |
+| [x] | **D-014 — Comment représenter l'appartenance structurelle aux archétypes ?** | Déduction textuelle ; archétype unique ; assertions plusieurs-à-plusieurs sourcées | **Accepté :** identités `Archetype` stables, localisations/alias séparés et appartenances versionnées avec provenance et revue D-010 | Aucun archétype principal ; supports et synergies hors relation ; valeurs inconnues en quarantaine sans cible `UNKNOWN` |
 | [ ] | **D-015 — Quelle politique de mise à jour des données ?** | Temps réel ; quotidien ; manuel | Détection quotidienne, import contrôlé, publication après validation | Réactivité raisonnable sans exposer automatiquement une source cassée |
 | [ ] | **D-016 — Quelle confidentialité/télémétrie ?** | Aucune ; strict minimum ; analytics complet | Événements produit minimaux avec consentement et aucune demande brute conservée par défaut | Mesurer le MVP tout en minimisant les données personnelles |
 | [ ] | **D-023 — Comment définir la qualité d'un deck ?** | Avis expert ; score heuristique ; résultats tournoi | Légalité obligatoire + grille de rôles + golden decks revus, sans prétendre mesurer la puissance absolue | Ancienne question D-010 renumérotée pour réserver D-010 au vocabulaire fonctionnel ; critère testable sans simulateur complet |
@@ -1320,3 +1320,4 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-29 | Validation de D-011 : identité `Card` minimale, frontières versionnées et passage de l'ADR-0011 à `Accepted` | Terminé |
 | 2026-09-29 | Validation de D-012 : localisation versionnée, fallback français → anglais et passage de l'ADR-0012 à `Accepted` | Terminé |
 | 2026-09-29 | Validation de D-013 : types contrôlés intrinsèques et passage de l'ADR-0013 à `Accepted` | Terminé |
+| 2026-09-29 | Validation de D-014 : appartenance structurelle aux archétypes et passage de l'ADR-0014 à `Accepted` | Terminé |

@@ -2,7 +2,7 @@
 
 ## Statut
 
-**Proposed — validation humaine requise.**
+**Accepted — validée le 2026-09-29.**
 
 Cette spécification définit conceptuellement `Archetype` et `CardArchetypeMembership`. Elle ne crée aucun code, classe, enum technique, SQL, ORM, migration, import, seed, dataset ou logique de recommandation.
 
@@ -83,6 +83,8 @@ Une appartenance canonique doit être soutenue par au moins un fondement traçab
 - une donnée structurée du catalogue opérationnel, mappée vers un archétype interne et acceptée par les règles de qualité ;
 - une convention de nommage dont le caractère structurel est établi par une règle documentée et versionnée ;
 - une correction humaine documentée fondée sur des sources examinées.
+
+Ces fondements autorisent la publication après leurs contrôles respectifs, mais ne sont pas équivalents en autorité. La provenance conserve explicitement la nature du fondement, sa source exacte et son éventuelle revue afin qu'une dérivation, un mapping de catalogue ou une correction humaine ne soit jamais présentée comme une assertion officielle.
 
 La convention de nommage n'est pas un test naïf de préfixe ou de sous-chaîne. Elle n'est utilisable que si sa portée, ses exceptions et sa source sont établies. Une ressemblance lexicale ne suffit pas.
 
@@ -284,13 +286,13 @@ D-014 exclut explicitement :
 - API et UI ;
 - importer de production, seed et dataset physique.
 
-## 16. Questions de validation finales
+## 16. Décisions finales validées
 
-1. L'appartenance structurelle peut-elle être publiée lorsqu'elle est soutenue par une donnée officielle, un mapping de catalogue validé, une règle de nommage normative versionnée ou une correction humaine revue, toute simple mention/synergie restant insuffisante ?
-2. Le modèle minimal `Archetype` avec identité interne stable, `ArchetypeLocalization` et `ArchetypeNameAlias` séparés est-il accepté, sans créer d'entités `Series` ou `Theme` au MVP ?
-3. L'appartenance plusieurs-à-plusieurs est-elle acceptée sans notion d'« archétype principal », chaque assertion possédant sa propre provenance et son propre historique ?
-4. Les appartenances importées peuvent-elles réutiliser les provenances et statuts de revue D-010, avec publication réservée aux assertions suffisamment sourcées/revues et interdiction de promouvoir automatiquement une suggestion LLM ?
-5. Une valeur d'archétype externe inconnue, ambiguë ou non mappée doit-elle rester en quarantaine hors de `CardArchetypeMembership`, bloquer l'assertion concernée et ne jamais créer automatiquement un `Archetype` ou une cible `UNKNOWN` ?
+1. L'appartenance structurelle peut être publiée lorsqu'elle est soutenue par une donnée officielle, un mapping de catalogue validé, une règle de nommage normative et versionnée ou une correction humaine revue. La nature et l'autorité de la provenance restent explicites. Une simple mention, synergie, compatibilité ou suggestion LLM non revue est insuffisante.
+2. Le modèle minimal `Archetype`, `ArchetypeLocalization` et `ArchetypeNameAlias` est retenu. `Series` et `Theme` restent hors MVP.
+3. La relation est plusieurs-à-plusieurs, sans archétype principal. Chaque assertion possède sa provenance, son statut de revue et son historique versionné propres.
+4. Les provenances et statuts de revue D-010 sont réutilisés. Une suggestion LLM suit le workflow de revue existant et ne peut jamais être promue automatiquement.
+5. Toute valeur externe inconnue, ambiguë ou non mappée reste en quarantaine. Elle ne crée ni `CardArchetypeMembership`, ni `Archetype`, ni cible `UNKNOWN`.
 
 ## 17. Proposition minimale
 
