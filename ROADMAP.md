@@ -25,8 +25,8 @@
 | Élément | État |
 |---|---|
 | Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
-| Tâche en cours | Préparer le dictionnaire de données et les vocabulaires stratégiques minimaux de Phase 1 |
-| Prochaine tâche | Définir et faire approuver la liste minimale des `FunctionalTag` et types de `CardRelation` du MVP |
+| Tâche en cours | Revue humaine de la proposition D-010 — vocabulaire fonctionnel minimal |
+| Prochaine tâche | Approuver ou amender les quinze `FunctionalTag`, douze `CardRelation` et règles de provenance proposées |
 | Blocages | D-008 juridique bloque toute publication/distribution ; aucun blocage D-009 ne subsiste pour la spécification de Phase 1 |
 | Décisions récentes | D-001 à D-007 et D-009 acceptées et consignées en ADR ; les dix familles D-009 sont exclusivement des fixtures et ne limitent pas le catalogue légal |
 
@@ -404,8 +404,8 @@ Entrée formulaire ou langage naturel
 |---|---|---|
 | `Card` | Identité canonique, passcode, noms localisés, texte, catégorie, type/race, attribut, niveau/rang/link, ATK/DEF, échelle, statut et provenance | N–N avec `Archetype`, 1–N avec `DeckCard` et `BanlistEntry`, N–N dirigée via `CardRelation` |
 | `Archetype` | Nom canonique, alias localisés et description courte ; dimension facultative de recherche/analyse, sans statut de « support MVP » | N–N avec `Card`; 1–N avec profils/annotations stratégiques futurs |
-| `CardRelation` | Carte source/cible, type de relation, sens, poids, justification, provenance, confiance et version | Deux relations vers `Card`; optionnellement limitée à un `Format` |
-| `FunctionalTag` | Rôle stratégique contrôlé et versionné | N–N avec `Card`, avec poids, contexte et provenance |
+| `CardRelation` | Assertion source vers carte ou sélecteur, type, sens, condition, justification, provenance, confiance, revue et version | Source `Card`, cible `Card` ou sélecteur versionné ; contexte facultatif |
+| `FunctionalTag` | Rôle stratégique contrôlé et versionné, intrinsèque ou contextuel | Attribution N–N avec `Card`, condition, contexte, provenance, confiance et statut de revue |
 | `Format` | Code stable, nom, famille TCG/OCG/MD/historique, territoire, règles de zones et politique de légalité | 1–N avec `FormatSnapshot`, `Banlist` et `Deck` |
 | `FormatSnapshot` | Version immuable du pool et des paramètres à une date d'effet | N–1 `Format`; N–1 `DataSnapshot`; référencé par analyses/decks |
 | `Banlist` | Nom, format, territoire, date d'annonce, date d'effet, source, statut et version | N–1 `Format`; 1–N `BanlistEntry`; référencée par `Deck`/`DeckVersion` |
@@ -642,6 +642,9 @@ PublishedDataset
   - [ ] Faire approuver la liste et les critères de réussite par une personne compétente sur le jeu.
 - [ ] Clarifier D-008 pour chaque catégorie de contenu avant sa publication ou distribution.
 - [ ] Définir la liste minimale des `FunctionalTag` et types de `CardRelation` utilisés par le MVP.
+- [x] Rédiger la proposition D-010 avec tags, relations, contexte, provenance, confiance, exemples et exclusions.
+- [x] Réaliser la revue ciblée de la frontière Tag/Relation, des chevauchements, sélecteurs et promotions LLM.
+- [x] Créer l'ADR-0010 au statut `Proposed`.
 
 ### Epic 1.1 — Dictionnaire et schéma logique
 
@@ -1250,13 +1253,14 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 |---|---|---|---|---|
 | [ ] | **D-008 — Quelles sources/licences sont acceptables ?** | Images distantes ; auto-hébergement ; contenu minimal ; conditions distinctes local/public/commercial | Clarifier juridiquement API, données, textes, images et marques avant publication/distribution | Le développement local peut avancer avec des fixtures prudentes, mais aucune conclusion juridique n'est acquise |
 | [x] | **D-009 — Quel jeu de données/archétypes pilotes pour valider le moteur ?** | Petit corpus par mécanique ; corpus par complexité stratégique ; combinaison incluant cartes génériques et deck sans archétype | **Accepté :** Blue-Eyes ; Branded/Despia/Fallen of Albaz ; Swordsoul/Tenyi ; Purrely ; Salamangreat ; D/D/D/Dark Contract ; Drytron ; Labrynth ; Sky Striker ; Floowandereeze, complétés par les micro-fixtures validées | Fixtures et golden tests uniquement ; aucune limitation du catalogue, de la construction utilisateur ou du pool de candidats de production |
-| [ ] | **D-010 — Comment définir la qualité d'un deck ?** | Avis expert ; score heuristique ; résultats tournoi | Légalité obligatoire + grille de rôles + golden decks revus, sans prétendre mesurer la puissance absolue | Critère testable malgré l'absence de simulateur et de données compétitives fiables |
+| [ ] | **D-010 — Quel vocabulaire minimal pour les rôles et relations ?** | Tags booléens simples ; taxonomie exhaustive ; assertions contextuelles versionnées | **Proposition revue à valider :** 15 `FunctionalTag` dont renommage recommandé `ENGINE_REQUIREMENT` → `REQUIRED_ENGINE_PIECE`, 12 `CardRelation`, cibles carte/sélecteur, confiance catégorielle et promotion LLM sous contrôle humain | Frontière Tag/rôle et Relation/source→cible clarifiée ; `UNKNOWN` reste préférable à une assertion inventée |
 | [ ] | **D-011 — Quel LLM et quel budget ?** | Fournisseur unique ; multi-fournisseur ; local | Port fournisseur, benchmark de modèles compatibles JSON, plafond mensuel et coût par génération | Choix fondé sur qualité/coût/latence réels, pas sur la popularité |
 | [ ] | **D-012 — RAG et embeddings ?** | Dès le MVP ; PostgreSQL/FTS ; pgvector plus tard | Aucun RAG/vector DB au MVP | Les données utiles sont structurées ; une nouvelle infrastructure n'est justifiée que par un corpus documentaire évalué |
 | [ ] | **D-013 — Quel format d'import/export ?** | YDK ; JSON interne ; CSV ; formats tiers | YDK utilisateur + JSON interne versionné | Compatibilité pratique et contrat interne sans perte |
 | [ ] | **D-014 — Quels objectifs non fonctionnels ?** | Best effort ; SLO chiffrés | p95 moteur < 3 s, IA < 15 s, seuils coût/erreur à fixer | Rend les arbitrages et le Go/No-Go mesurables |
 | [ ] | **D-015 — Quelle politique de mise à jour des données ?** | Temps réel ; quotidien ; manuel | Détection quotidienne, import contrôlé, publication après validation | Réactivité raisonnable sans exposer automatiquement une source cassée |
 | [ ] | **D-016 — Quelle confidentialité/télémétrie ?** | Aucune ; strict minimum ; analytics complet | Événements produit minimaux avec consentement et aucune demande brute conservée par défaut | Mesurer le MVP tout en minimisant les données personnelles |
+| [ ] | **D-023 — Comment définir la qualité d'un deck ?** | Avis expert ; score heuristique ; résultats tournoi | Légalité obligatoire + grille de rôles + golden decks revus, sans prétendre mesurer la puissance absolue | Ancienne question D-010 renumérotée pour réserver D-010 au vocabulaire fonctionnel ; critère testable sans simulateur complet |
 
 ### 🟢 Secondaires
 
@@ -1284,10 +1288,10 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 
 ### À réaliser ensuite : définir les vocabulaires stratégiques minimaux de Phase 1
 
-- [ ] Définir la liste minimale des rôles `FunctionalTag` nécessaires à l'analyse MVP.
-- [ ] Définir les types initiaux de `CardRelation` nécessaires aux dix familles et micro-fixtures.
-- [ ] Définir pour chaque annotation sa provenance, sa confiance, son contexte et sa version.
-- [ ] Définir le comportement du moteur lorsqu'un rôle ou une relation est inconnu.
+- [x] Proposer la liste minimale des rôles `FunctionalTag` nécessaires à l'analyse MVP.
+- [x] Proposer les types initiaux de `CardRelation` nécessaires aux dix familles et micro-fixtures.
+- [x] Proposer pour chaque annotation sa provenance, sa confiance, son contexte et sa version.
+- [x] Définir le comportement proposé du moteur lorsqu'un rôle ou une relation est inconnu.
 - [ ] Faire approuver les vocabulaires avant toute annotation physique.
 
 **Critère d'acceptation :** les vocabulaires sont bornés, documentés et suffisants pour décrire les fixtures D-009 sans prétendre couvrir toutes les interactions Yu-Gi-Oh! ; une valeur inconnue reste représentable sans invention.
@@ -1310,3 +1314,5 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-29 | Proposition D-009 de dix familles, matrice de couverture, lacunes et cas indépendants documentés | En attente de validation explicite |
 | 2026-09-29 | Revue finale D-009 : aucun remplacement requis, redondances utiles, gate de légalité EMEA et micro-fixtures confirmés | D-009 reste `Proposed` |
 | 2026-09-29 | Validation explicite de D-009 et passage de l'ADR-0009 au statut `Accepted` | Terminé |
+| 2026-09-29 | Proposition D-010 : vocabulaire minimal, provenance/confiance et ADR-0010 | En attente de validation humaine |
+| 2026-09-29 | Revue ciblée D-010 : frontières, chevauchements, `FLOODGATE`, sélecteurs et promotion LLM clarifiés | D-010 reste `Proposed` |
