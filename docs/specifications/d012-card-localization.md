@@ -2,7 +2,7 @@
 
 ## Statut
 
-**Proposed — validation humaine requise.**
+**Accepted — validée le 2026-09-29.**
 
 Ce document précise la représentation multilingue des noms et textes de cartes. Il ne crée aucun code, schéma SQL, ORM, migration, import ou dataset et ne tranche aucune question juridique relevant de D-008.
 
@@ -31,11 +31,11 @@ Pour une combinaison `(card_id, catalogue_snapshot_id, language_code)`, il exist
 | `card_id` | Oui | Référence l'identité stable de la carte |
 | `catalogue_snapshot_id` | Oui | Rend la localisation historique et reproductible |
 | `language_code` | Oui | Identifie la langue de la localisation |
-| `official_name` | Oui pour une localisation publiée | Nom officiel ou nom de catalogue validé dans cette langue |
+| `official_name` | Requis pour `COMPLETE` ou `PARTIAL` | Nom officiel ou nom de catalogue validé dans cette langue ; absent pour `UNAVAILABLE` |
 | `effect_text` | Conditionnel | Texte d'effet des cartes qui en possèdent un |
 | `normal_text` | Conditionnel | Description d'un Monstre Normal ou autre texte non traité comme effet |
 | `pendulum_text` | Conditionnel | Texte propre à la zone Pendulum |
-| `localization_status` | Oui | Indique si la localisation est complète, partielle ou indisponible |
+| `localization_status` | Oui | État métier limité à `COMPLETE`, `PARTIAL` ou `UNAVAILABLE` |
 | `provenance_ref` | Oui | Référence la source et, le cas échéant, la validation humaine |
 
 Le MVP n'ajoute pas de champs séparés pour le coût, les conditions, les matériaux, les citations, les rulings ou chaque paragraphe du texte. Les retours à la ligne du texte source sont préservés dans les champs textuels pertinents.
@@ -47,13 +47,21 @@ Le MVP n'ajoute pas de champs séparés pour le coût, les conditions, les maté
 - **Indisponible :** la donnée linguistique attendue n'a pas été obtenue ou validée. L'état est explicite ; une chaîne vide ne sert jamais à représenter cette situation.
 - **Localisation partielle :** le nom est connu, mais au moins un texte applicable manque ou n'est pas validé.
 
-Une localisation entièrement absente peut être représentée par l'absence de `CardLocalization`, complétée par le rapport de qualité du snapshot. Si une ligne est présente, son statut doit expliquer toute donnée applicable manquante.
+Les seuls états métier sont :
+
+- `COMPLETE` : tous les champs linguistiques applicables et attendus sont disponibles et validés ;
+- `PARTIAL` : au moins un champ est disponible et validé, mais un autre champ applicable et attendu manque ;
+- `UNAVAILABLE` : aucune localisation publiable n'est disponible dans cette langue.
+
+Une absence technique, une incohérence entre champs ou une rupture de référence est une anomalie de qualité ou d'intégrité. Elle ne crée jamais un quatrième état métier.
+
+Une langue dont l'indisponibilité est connue est représentée explicitement par une `CardLocalization` au statut `UNAVAILABLE`. L'absence inattendue de l'enregistrement requis constitue une anomalie technique signalée par le contrôle de qualité ; elle n'équivaut pas à `UNAVAILABLE`.
 
 ## 3. Langues
 
 - `en` est la langue canonique du MVP et doit être présente pour publier une carte lorsque la source de référence fournit ces données.
 - `fr` est la langue d'interface prioritaire, mais sa localisation est facultative.
-- Une localisation française absente ne bloque pas la présence de la carte dans le catalogue si l'anglais canonique est disponible.
+- Une localisation française `UNAVAILABLE` ne bloque pas la présence de la carte dans le catalogue si l'anglais canonique est disponible.
 - Une localisation anglaise attendue mais absente place la carte dans un état de données non résolues ; elle ne peut pas être masquée par une traduction française ou générée.
 - `language_code` utilise un code de langue validé et extensible. Le MVP limite les valeurs acceptées à `en` et `fr` sans créer une énumération exhaustive mondiale.
 - Ajouter ultérieurement une langue consiste à autoriser un nouveau code et de nouvelles localisations ; la structure de `Card`, `CardSnapshot` et `CardLocalization` ne change pas.
@@ -168,9 +176,9 @@ Toute localisation publiée conserve au minimum :
 - toute correction humaine appliquée ;
 - pour une correction, l'identité du réviseur, la date, la justification et les sources examinées.
 
-Les origines conceptuelles admises sont : source officielle, source catalogue identifiée, correction humaine documentée ou autre source explicitement validée.
+Les origines conceptuelles admises sont : source officielle, source catalogue identifiée, correction humaine documentée ou autre source explicitement validée. Cette origine reste explicite et ne doit pas être déduite du seul fait que la localisation a été publiée.
 
-Une traduction LLM peut uniquement exister comme suggestion séparée, non publiée et non utilisée par le fallback officiel. Sa promotion exige une revue humaine documentée, une vérification contre des sources acceptables et la conservation du lien vers la suggestion initiale. Après approbation, la donnée publiée est qualifiée de correction humaine validée ; elle n'est jamais présentée comme une traduction officielle de l'éditeur sans preuve officielle.
+Une traduction LLM peut uniquement exister comme suggestion séparée, non publiée et non utilisée par le fallback officiel. Sa promotion exige une revue humaine documentée, une vérification contre des sources acceptables et la conservation du lien vers la suggestion initiale. Après approbation, la donnée publiée est qualifiée de localisation humaine validée ; elle n'est jamais présentée comme une traduction officielle de l'éditeur sans provenance permettant explicitement cette qualification.
 
 D-012 définit cette traçabilité fonctionnelle sans résoudre l'autorisation de collecter, conserver ou publier les textes ; cette question reste dans D-008.
 
@@ -300,13 +308,13 @@ Règles minimales :
 - provenance obligatoire ; aucune suggestion LLM non revue dans les données publiées ;
 - aucune architecture linguistique supplémentaire avant qu'un besoin réel ne l'exige.
 
-## 15. Questions de validation
+## 15. Décisions finales validées
 
-1. Le rattachement normatif direct de `CardLocalization` à `(Card, CatalogueSnapshot)`, avec cohérence obligatoire avec le `CardSnapshot` correspondant, est-il accepté ?
-2. Le fallback champ par champ est-il accepté pour les localisations françaises partielles, avec indication de la langue réellement servie pour chaque champ ?
-3. Les états minimaux de localisation doivent-ils être limités à complète, partielle et indisponible, l'absence technique restant une anomalie de qualité ?
-4. Les translittérations validées et variantes de source peuvent-elles être des `CardNameAlias`, tandis que les surnoms communautaires et traductions libres restent exclus du MVP ?
-5. Une correction humaine validée peut-elle être publiée sans être qualifiée d'« officielle », lorsque sa source n'est pas l'éditeur officiel ?
+1. `CardLocalization` est normativement rattachée à `(Card, CatalogueSnapshot)` et reste cohérente avec le `CardSnapshot` correspondant.
+2. Le fallback français → anglais s'applique champ par champ aux localisations françaises partielles. Le contrat indique la langue réellement servie pour chaque champ.
+3. Les états métier sont strictement limités à `COMPLETE`, `PARTIAL` et `UNAVAILABLE`. Toute absence technique ou incohérence relève de la qualité ou de l'intégrité des données.
+4. Les translittérations validées et variantes provenant de sources identifiées peuvent être des `CardNameAlias`. Les surnoms communautaires, traductions libres et variantes non validées restent hors MVP.
+5. Une correction humaine validée peut être publiée comme localisation humaine validée lorsque sa source n'est pas l'éditeur officiel. Elle ne reçoit la qualification « officielle » que si sa provenance l'autorise explicitement.
 
 ## Dépendances
 
