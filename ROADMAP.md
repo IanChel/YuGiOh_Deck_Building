@@ -25,10 +25,10 @@
 | Élément | État |
 |---|---|
 | Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
-| Tâche en cours | Revue par le porteur du projet de la proposition D-009 et de sa matrice de couverture |
-| Prochaine tâche | Approuver ou amender les dix familles de fixtures et les scénarios indépendants proposés |
-| Blocages | D-008 juridique bloque toute publication/distribution ; D-009 bloque les fixtures stratégiques de référence, mais ne limite ni le catalogue de production ni le schéma générique |
-| Décisions récentes | D-001 à D-007 acceptées et consignées en ADR ; TCG Advanced EMEA, snapshots immuables, YGOPRODeck répliqué localement, UI française, périmètre MVP et stack monolithique validés |
+| Tâche en cours | Préparer le dictionnaire de données et les vocabulaires stratégiques minimaux de Phase 1 |
+| Prochaine tâche | Définir et faire approuver la liste minimale des `FunctionalTag` et types de `CardRelation` du MVP |
+| Blocages | D-008 juridique bloque toute publication/distribution ; aucun blocage D-009 ne subsiste pour la spécification de Phase 1 |
+| Décisions récentes | D-001 à D-007 et D-009 acceptées et consignées en ADR ; les dix familles D-009 sont exclusivement des fixtures et ne limitent pas le catalogue légal |
 
 ### Règles de mise à jour
 
@@ -535,7 +535,7 @@ Liens de référence candidats :
 - [x] Limiter la notion de synergie aux relations explicitement connues et présentes dans les données.
 - [ ] Définir les catégories fonctionnelles utilisées par l'analyse.
 - [ ] Lister les interactions/rulings hors périmètre et la manière de les signaler.
-- [ ] Définir et valider D-009 : un dataset pilote représentatif réservé aux fixtures, sans effet sur la couverture de production.
+- [x] Définir et valider D-009 : un dataset pilote représentatif réservé aux fixtures, sans effet sur la couverture de production.
 
 ### Epic 0.3 — Sources, licences et conformité
 
@@ -632,7 +632,7 @@ PublishedDataset
 - [x] Définir le cycle de vie candidat `staged → validated → published` avec snapshots immuables.
 - [x] Proposer dix familles de fixtures, une matrice de couverture, les lacunes et les scénarios indépendants de D-009.
 - [x] Réaliser la revue finale de cohérence : redondances, mécaniques, recommandations, incompatibilités et risques de légalité.
-- [ ] Définir et valider le dataset/archetypes pilotes de test D-009.
+- [x] Définir et valider le dataset/archetypes pilotes de test D-009.
   - [ ] Choisir un volume limité permettant une annotation et une revue réalistes.
   - [ ] Couvrir plusieurs mécaniques d'Extra Deck et profils de construction.
   - [ ] Privilégier des archétypes aux cartes, textes et decklists de référence accessibles.
@@ -1249,7 +1249,7 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | État | ID et question | Options | Recommandation | Raison |
 |---|---|---|---|---|
 | [ ] | **D-008 — Quelles sources/licences sont acceptables ?** | Images distantes ; auto-hébergement ; contenu minimal ; conditions distinctes local/public/commercial | Clarifier juridiquement API, données, textes, images et marques avant publication/distribution | Le développement local peut avancer avec des fixtures prudentes, mais aucune conclusion juridique n'est acquise |
-| [ ] | **D-009 — Quel jeu de données/archétypes pilotes pour valider le moteur ?** | Petit corpus par mécanique ; corpus par complexité stratégique ; combinaison incluant cartes génériques et deck sans archétype | **Proposition à valider :** Blue-Eyes ; Branded/Despia ; Swordsoul/Tenyi ; Purrely ; Salamangreat ; D/D/D ; Drytron ; Labrynth ; Sky Striker ; Floowandereeze, complétés par des scénarios sans archétype et hors dataset | Fixtures et golden tests représentatifs uniquement ; aucune limitation du catalogue, de la construction utilisateur ou du pool de candidats de production |
+| [x] | **D-009 — Quel jeu de données/archétypes pilotes pour valider le moteur ?** | Petit corpus par mécanique ; corpus par complexité stratégique ; combinaison incluant cartes génériques et deck sans archétype | **Accepté :** Blue-Eyes ; Branded/Despia/Fallen of Albaz ; Swordsoul/Tenyi ; Purrely ; Salamangreat ; D/D/D/Dark Contract ; Drytron ; Labrynth ; Sky Striker ; Floowandereeze, complétés par les micro-fixtures validées | Fixtures et golden tests uniquement ; aucune limitation du catalogue, de la construction utilisateur ou du pool de candidats de production |
 | [ ] | **D-010 — Comment définir la qualité d'un deck ?** | Avis expert ; score heuristique ; résultats tournoi | Légalité obligatoire + grille de rôles + golden decks revus, sans prétendre mesurer la puissance absolue | Critère testable malgré l'absence de simulateur et de données compétitives fiables |
 | [ ] | **D-011 — Quel LLM et quel budget ?** | Fournisseur unique ; multi-fournisseur ; local | Port fournisseur, benchmark de modèles compatibles JSON, plafond mensuel et coût par génération | Choix fondé sur qualité/coût/latence réels, pas sur la popularité |
 | [ ] | **D-012 — RAG et embeddings ?** | Dès le MVP ; PostgreSQL/FTS ; pgvector plus tard | Aucun RAG/vector DB au MVP | Les données utiles sont structurées ; une nouvelle infrastructure n'est justifiée que par un corpus documentaire évalué |
@@ -1282,16 +1282,15 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 
 ## 11. Première tâche concrète
 
-### À réaliser ensuite : définir et valider le dataset pilote D-009
+### À réaliser ensuite : définir les vocabulaires stratégiques minimaux de Phase 1
 
-- [ ] Fixer le volume maximal de cartes, archétypes et scénarios que l'équipe peut annoter et revoir pour les tests.
-- [x] Établir une liste candidate à partir de critères objectifs, sans retenir automatiquement les archétypes les plus populaires.
-- [x] Vérifier la diversité des mécaniques, de la complexité et des contraintes couvertes par une matrice.
-- [ ] Estimer pour chaque candidat le volume de rôles, synergies, conflits et golden decks à documenter.
-- [x] Ajouter au plan un scénario de deck sans archétype et des cartes hors corpus pilote.
-- [ ] Faire approuver la liste finale et consigner D-009.
+- [ ] Définir la liste minimale des rôles `FunctionalTag` nécessaires à l'analyse MVP.
+- [ ] Définir les types initiaux de `CardRelation` nécessaires aux dix familles et micro-fixtures.
+- [ ] Définir pour chaque annotation sa provenance, sa confiance, son contexte et sa version.
+- [ ] Définir le comportement du moteur lorsqu'un rôle ou une relation est inconnu.
+- [ ] Faire approuver les vocabulaires avant toute annotation physique.
 
-**Critère d'acceptation :** un corpus de test limité est explicitement approuvé et justifié par sa couverture des mécaniques, données disponibles, complexité testable et effort d'annotation. La décision et les tests affirment qu'il ne définit ni les cartes/archétypes « supportés », ni le catalogue de production, ni le pool de recommandations.
+**Critère d'acceptation :** les vocabulaires sont bornés, documentés et suffisants pour décrire les fixtures D-009 sans prétendre couvrir toutes les interactions Yu-Gi-Oh! ; une valeur inconnue reste représentable sans invention.
 
 ---
 
@@ -1310,3 +1309,4 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-29 | Clarification des périmètres production/test/construction/recommandation ; D-009 reformulée sans limitation fonctionnelle | Terminé, D-009 reste proposée |
 | 2026-09-29 | Proposition D-009 de dix familles, matrice de couverture, lacunes et cas indépendants documentés | En attente de validation explicite |
 | 2026-09-29 | Revue finale D-009 : aucun remplacement requis, redondances utiles, gate de légalité EMEA et micro-fixtures confirmés | D-009 reste `Proposed` |
+| 2026-09-29 | Validation explicite de D-009 et passage de l'ADR-0009 au statut `Accepted` | Terminé |

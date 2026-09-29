@@ -1,10 +1,10 @@
-# D-009 — Proposition de dataset pilote pour valider le moteur
+# D-009 — Dataset pilote validé pour tester le moteur
 
 ## Statut
 
-**Proposed — validation explicite requise.**
+**Accepted — validé explicitement le 29 septembre 2026.**
 
-Ce document ne crée aucun dataset et ne sélectionne aucun deck à jouer. Il propose un corpus de fixtures destiné à la validation logicielle.
+Ce document spécifie le corpus de fixtures validé par D-009. Il ne crée encore aucun dataset physique et ne sélectionne aucun deck à jouer.
 
 ## Frontière contractuelle
 
@@ -37,7 +37,7 @@ La proposition maximise la couverture fonctionnelle plutôt que la puissance ou 
 9. **Temporalité :** au moins un cas sensible aux changements de banlist.
 10. **Non-dépendance à l'archétype :** compléments obligatoires avec decks sans archétype et cartes hors corpus.
 
-## Sélection proposée — sans classement
+## Sélection validée — sans classement
 
 | Famille de fixture | Utilité pour le logiciel | Fonctionnalités testées | Mécaniques et contraintes | Dépendances à surveiller |
 |---|---|---|---|---|
@@ -191,19 +191,19 @@ Ces cas seront ajoutés sous forme de micro-fixtures synthétiques ou de tests c
 11. **Import YDK :** carte inconnue, doublon, quantité invalide et identifiant légal hors dataset pilote.
 12. **Sécurité LLM :** demande citant une carte inexistante ou demandant d'ignorer la banlist.
 
-## Conditions de validation proposées pour D-009
+## Conditions de mise en œuvre de D-009
 
-- [ ] Les dix familles sont approuvées comme fixtures, sans notion de classement.
+- [x] Les dix familles sont approuvées comme fixtures, sans notion de classement.
 - [ ] Un propriétaire de revue métier est désigné pour chaque golden deck ou scénario.
 - [ ] Les versions de catalogue et de banlist de référence sont choisies.
 - [ ] Le volume maximal initial de cartes et relations annotées est fixé.
-- [ ] Les scénarios indépendants obligatoires sont approuvés.
+- [x] Les scénarios indépendants obligatoires sont approuvés.
 - [ ] Les critères de résultat attendu et de maintenance d'une fixture sont définis.
-- [ ] Il est confirmé par écrit que le dataset n'est jamais utilisé comme filtre du catalogue ou whitelist de recommandation.
+- [x] Il est confirmé par écrit que le dataset n'est jamais utilisé comme filtre du catalogue ou whitelist de recommandation.
 
 ## Aptitude à démarrer la Phase 1
 
-Cette proposition est suffisamment diverse pour commencer raisonnablement la **spécification du schéma, des mappings, des fixtures et des contrôles de qualité** de Phase 1 après validation de D-009. Elle n'autorise pas encore la création du dataset complet ni l'implémentation de l'importateur.
+La sélection validée est suffisamment diverse pour commencer raisonnablement la **spécification du schéma, des mappings, des fixtures et des contrôles de qualité** de Phase 1. Elle n'autorise pas encore la création du dataset complet ni l'implémentation de l'importateur.
 
 ## Sources de cadrage
 
