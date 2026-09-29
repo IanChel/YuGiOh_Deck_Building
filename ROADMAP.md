@@ -25,10 +25,10 @@
 | Élément | État |
 |---|---|
 | Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
-| Tâche en cours | Revue humaine de la proposition D-010 — vocabulaire fonctionnel minimal |
-| Prochaine tâche | Approuver ou amender les quinze `FunctionalTag`, douze `CardRelation` et règles de provenance proposées |
+| Tâche en cours | Préparer le dictionnaire de données et le schéma logique de Phase 1 |
+| Prochaine tâche | Spécifier l'entité `Card` champ par champ : types, nullabilité, domaines, identifiants et provenance |
 | Blocages | D-008 juridique bloque toute publication/distribution ; aucun blocage D-009 ne subsiste pour la spécification de Phase 1 |
-| Décisions récentes | D-001 à D-007 et D-009 acceptées et consignées en ADR ; les dix familles D-009 sont exclusivement des fixtures et ne limitent pas le catalogue légal |
+| Décisions récentes | D-001 à D-007, D-009 et D-010 acceptées ; D-010 fige 15 `FunctionalTag`, 12 `CardRelation`, une confiance catégorielle et une promotion LLM sous revue humaine |
 
 ### Règles de mise à jour
 
@@ -641,7 +641,7 @@ PublishedDataset
   - [ ] Vérifier que les tests interrogent le même pipeline que le catalogue complet.
   - [ ] Faire approuver la liste et les critères de réussite par une personne compétente sur le jeu.
 - [ ] Clarifier D-008 pour chaque catégorie de contenu avant sa publication ou distribution.
-- [ ] Définir la liste minimale des `FunctionalTag` et types de `CardRelation` utilisés par le MVP.
+- [x] Définir la liste minimale des `FunctionalTag` et types de `CardRelation` utilisés par le MVP (D-010).
 - [x] Rédiger la proposition D-010 avec tags, relations, contexte, provenance, confiance, exemples et exclusions.
 - [x] Réaliser la revue ciblée de la frontière Tag/Relation, des chevauchements, sélecteurs et promotions LLM.
 - [x] Créer l'ADR-0010 au statut `Proposed`.
@@ -1253,7 +1253,7 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 |---|---|---|---|---|
 | [ ] | **D-008 — Quelles sources/licences sont acceptables ?** | Images distantes ; auto-hébergement ; contenu minimal ; conditions distinctes local/public/commercial | Clarifier juridiquement API, données, textes, images et marques avant publication/distribution | Le développement local peut avancer avec des fixtures prudentes, mais aucune conclusion juridique n'est acquise |
 | [x] | **D-009 — Quel jeu de données/archétypes pilotes pour valider le moteur ?** | Petit corpus par mécanique ; corpus par complexité stratégique ; combinaison incluant cartes génériques et deck sans archétype | **Accepté :** Blue-Eyes ; Branded/Despia/Fallen of Albaz ; Swordsoul/Tenyi ; Purrely ; Salamangreat ; D/D/D/Dark Contract ; Drytron ; Labrynth ; Sky Striker ; Floowandereeze, complétés par les micro-fixtures validées | Fixtures et golden tests uniquement ; aucune limitation du catalogue, de la construction utilisateur ou du pool de candidats de production |
-| [ ] | **D-010 — Quel vocabulaire minimal pour les rôles et relations ?** | Tags booléens simples ; taxonomie exhaustive ; assertions contextuelles versionnées | **Proposition revue à valider :** 15 `FunctionalTag` dont renommage recommandé `ENGINE_REQUIREMENT` → `REQUIRED_ENGINE_PIECE`, 12 `CardRelation`, cibles carte/sélecteur, confiance catégorielle et promotion LLM sous contrôle humain | Frontière Tag/rôle et Relation/source→cible clarifiée ; `UNKNOWN` reste préférable à une assertion inventée |
+| [x] | **D-010 — Quel vocabulaire minimal pour les rôles et relations ?** | Tags booléens simples ; taxonomie exhaustive ; assertions contextuelles versionnées | **Accepté :** 15 `FunctionalTag` dont `ENGINE_REQUIREMENT` et `FLOODGATE`, 12 `CardRelation`, cibles carte/sélecteur versionné, confiance catégorielle et promotion LLM par une revue humaine traçable | Frontière Tag/rôle et Relation/source→cible figée ; aucune suggestion LLM non revue ne peut servir de filtre dur |
 | [ ] | **D-011 — Quel LLM et quel budget ?** | Fournisseur unique ; multi-fournisseur ; local | Port fournisseur, benchmark de modèles compatibles JSON, plafond mensuel et coût par génération | Choix fondé sur qualité/coût/latence réels, pas sur la popularité |
 | [ ] | **D-012 — RAG et embeddings ?** | Dès le MVP ; PostgreSQL/FTS ; pgvector plus tard | Aucun RAG/vector DB au MVP | Les données utiles sont structurées ; une nouvelle infrastructure n'est justifiée que par un corpus documentaire évalué |
 | [ ] | **D-013 — Quel format d'import/export ?** | YDK ; JSON interne ; CSV ; formats tiers | YDK utilisateur + JSON interne versionné | Compatibilité pratique et contrat interne sans perte |
@@ -1316,3 +1316,4 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-29 | Validation explicite de D-009 et passage de l'ADR-0009 au statut `Accepted` | Terminé |
 | 2026-09-29 | Proposition D-010 : vocabulaire minimal, provenance/confiance et ADR-0010 | En attente de validation humaine |
 | 2026-09-29 | Revue ciblée D-010 : frontières, chevauchements, `FLOODGATE`, sélecteurs et promotion LLM clarifiés | D-010 reste `Proposed` |
+| 2026-09-29 | Validation explicite de D-010 et passage de l'ADR-0010 au statut `Accepted` | Terminé |

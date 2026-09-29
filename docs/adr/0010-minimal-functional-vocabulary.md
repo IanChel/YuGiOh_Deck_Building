@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
@@ -12,7 +12,7 @@ Les rôles sont souvent contextuels. Les relations peuvent provenir du texte, d'
 
 ## Decision
 
-Proposition soumise à validation : adopter le vocabulaire, les règles de contexte et le modèle de provenance définis dans [`docs/specifications/d010-functional-vocabulary.md`](../specifications/d010-functional-vocabulary.md).
+Adopter le vocabulaire, les règles de contexte et le modèle de provenance définis dans [`docs/specifications/d010-functional-vocabulary.md`](../specifications/d010-functional-vocabulary.md).
 
 Le vocabulaire proposé comprend quinze `FunctionalTag` :
 
@@ -33,7 +33,15 @@ La frontière proposée est normative : un `FunctionalTag` décrit le rôle de l
 
 La confiance reste catégorielle (`HIGH/MEDIUM/LOW/UNKNOWN`) au MVP afin d'éviter une fausse précision. Une `LLM_SUGGESTION` doit être revue, approuvée par un humain puis recréée comme `HUMAN_ANNOTATION/REVIEWED` avec provenance et trace de révision ; le LLM ne peut jamais effectuer cette promotion.
 
-`FLOODGATE` est conservé selon une approche combinée : détection candidate depuis le texte, qualification humaine contextuelle et relation `LOCKS` pour la restriction structurée. Le renommage `ENGINE_REQUIREMENT` → `REQUIRED_ENGINE_PIECE` est recommandé mais reste soumis à validation.
+`FLOODGATE` est conservé selon une approche combinée : détection candidate depuis le texte, qualification humaine contextuelle, relation `LOCKS` pour la restriction structurée et validation déterministe avant tout filtre dur. `ENGINE_REQUIREMENT` est conservé sous ce nom.
+
+Les cibles de relation sont soit une carte précise, soit un sélecteur versionné évalué contre un `CatalogueSnapshot`.
+
+La provenance canonique est limitée à `SOURCE_CARD_TEXT`, `DETERMINISTIC_DERIVATION`, `HUMAN_ANNOTATION`, `LLM_SUGGESTION` et `UNKNOWN`. La confiance reste catégorielle : `HIGH`, `MEDIUM`, `LOW`, `UNKNOWN` ; aucun score numérique n'est utilisé au MVP.
+
+Le workflow de promotion est : `LLM_SUGGESTION / UNREVIEWED` → revue humaine documentée → `HUMAN_ANNOTATION / REVIEWED`. La promotion conserve l'identité du réviseur, la date, la justification, les sources examinées et le lien vers la suggestion initiale.
+
+Une seule revue humaine traçable suffit au MVP pour une assertion susceptible de servir de filtre dur. Une suggestion LLM non revue ne peut jamais devenir un filtre dur.
 
 ## Consequences
 
@@ -41,6 +49,7 @@ La confiance reste catégorielle (`HIGH/MEDIUM/LOW/UNKNOWN`) au MVP afin d'évit
 - Une carte sans annotation reste accessible et légalement validable.
 - Les relations ne valent ni recommandation automatique, ni preuve de légalité, ni optimalité.
 - Un sélecteur cible est évalué contre un snapshot ; il ne devient jamais une liste de cartes inventée ou figée à travers les versions.
+- `ADDS_TO_HAND`, `RESTRICTS` et `SYNERGIZES_WITH` restent explicitement différés.
 - Les filtres durs exigent une règle déterministe ou une information revue à confiance élevée.
 - L'extension future se fait par version du vocabulaire sans réécrire les anciennes assertions.
 

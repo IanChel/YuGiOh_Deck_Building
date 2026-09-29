@@ -2,7 +2,7 @@
 
 ## Statut
 
-**Proposed — validation humaine requise.**
+**Accepted — validé explicitement le 29 septembre 2026.**
 
 Ce document définit un vocabulaire conceptuel. Il ne crée ni enum de code, ni table SQL, ni annotation physique.
 
@@ -32,6 +32,7 @@ Il s'applique à tout le catalogue TCG Advanced EMEA. Les fixtures D-009 servent
 8. Toute information est versionnée et liée à une provenance.
 9. Le vocabulaire est extensible par nouvelle version ; les anciennes annotations restent interprétables.
 10. `GENERIC`, `ENGINE`, `BOSS`, `DEFENSIVE` ou `SYNERGIZES_WITH` ne sont pas retenus comme vérités non qualifiées : leur sens est trop dépendant du contexte.
+11. Le vocabulaire validé contient exactement quinze tags et douze relations ; aucun ajout implicite n'est autorisé sans nouvelle décision versionnée.
 
 ## 3. Modèle conceptuel d'un FunctionalTag
 
@@ -96,7 +97,7 @@ Card A
 
 - **`STARTER` vs `SEARCHER` :** distinction conservée. Une carte peut démarrer une ligne sans chercher ; une carte peut chercher une ressource sans être un starter autonome. `STARTER` est contextuel, `SEARCHER` décrit une capacité.
 - **`EXTENDER` vs `SPECIAL_SUMMONS` :** distinction conservée. `EXTENDER` qualifie le rôle de la carte dans une ligne ; `SPECIAL_SUMMONS` relie une source à ce qu'elle peut invoquer. Une carte qui s'invoque elle-même peut être extender sans relation vers une autre carte.
-- **`ENGINE_REQUIREMENT` vs `REQUIRES` :** distinction conservée sous réserve de nom. Le tag qualifie une pièce dans un moteur ; la relation exprime quelle source requiert quelle cible/condition. Renommage recommandé avant validation : `REQUIRED_ENGINE_PIECE`, plus explicite et moins susceptible d'être lu comme une contrainte portée par la carte elle-même.
+- **`ENGINE_REQUIREMENT` vs `REQUIRES` :** distinction conservée. Le tag `ENGINE_REQUIREMENT` qualifie une pièce dans un moteur ; la relation exprime quelle source requiert quelle cible/condition. Le nom `ENGINE_REQUIREMENT` est définitivement retenu pour le MVP.
 - **`PAYOFF` vs `MATERIAL_PROVIDER` :** distinction conservée. Le premier est le résultat recherché ; le second fournit une ressource pour y accéder. Une carte peut porter les deux dans des contextes différents.
 - **`INTERRUPTION` vs `NEGATION` :** les deux sont conservés. Toute `NEGATION` pertinente pendant le tour adverse peut aussi être `INTERRUPTION`, mais une interruption peut détruire, bannir, renvoyer ou imposer une restriction sans nier.
 - **`PROTECTION` vs `PROTECTS` :** `PROTECTION` est le rôle de la source ; `PROTECTS` identifie les cibles et modalités protégées.
@@ -290,6 +291,8 @@ HUMAN_ANNOTATION / REVIEWED
 3. `LOW`, `LLM_SUGGESTION` non revue et `UNKNOWN` ne peuvent jamais justifier une exclusion dure.
 4. Une affirmation utilisateur doit indiquer si elle relève d'un fait, d'une dérivation ou d'une appréciation.
 5. Toute modification produit une nouvelle version ou marque l'ancienne `SUPERSEDED`.
+6. Une seule revue humaine traçable suffit au MVP pour promouvoir une assertion destinée à un filtre dur.
+7. Aucun rôle, processus ou agent ne peut promouvoir une suggestion LLM sans revue humaine documentée.
 
 ## 7. Exemples conceptuels
 
@@ -405,36 +408,24 @@ Le LLM ne détermine ni l'existence des cartes, ni leur légalité, ni leur rôl
 - taxonomie exhaustive de tous les effets Yu-Gi-Oh! ;
 - inférence automatique non revue de toutes les synergies du catalogue.
 
-## 11. Questions restant à valider
+## 11. Décisions finales
 
-1. La liste des quinze `FunctionalTag` MVP est-elle acceptée telle quelle ?
-2. Le renommage recommandé `ENGINE_REQUIREMENT` → `REQUIRED_ENGINE_PIECE` est-il accepté ?
-3. `MATERIAL_PROVIDER` est-il conservé sous ce nom ?
-4. `NEGATION` reste-t-il un tag séparé pouvant coexister avec `INTERRUPTION` ?
-5. La liste des douze `CardRelation` est-elle acceptée sans ajout ni retrait ?
-6. Le modèle de cible carte précise ou sélecteur versionné est-il accepté ?
-7. La confiance catégorielle `HIGH/MEDIUM/LOW/UNKNOWN` est-elle acceptée pour le MVP ?
-8. Une seule revue humaine suffit-elle, ou une double revue est-elle exigée pour les assertions utilisées comme filtres durs ?
-9. Quels rôles projet sont autorisés à promouvoir une `LLM_SUGGESTION` ?
-10. Le traitement combiné de `FLOODGATE` — candidat déterministe, revue humaine, relation `LOCKS` — est-il accepté ?
+- Les quinze `FunctionalTag` sont acceptés exactement sous leurs noms actuels, dont `ENGINE_REQUIREMENT` et `FLOODGATE`.
+- Les douze `CardRelation` sont acceptées exactement sous leurs noms actuels.
+- Tag = rôle ou propriété fonctionnelle intrinsèque/contextuelle ; Relation = assertion source → cible.
+- Une cible est une carte précise ou un sélecteur versionné évalué contre un `CatalogueSnapshot`.
+- La provenance et la confiance catégorielle définies en section 6 sont acceptées ; aucun score numérique au MVP.
+- Une seule revue humaine traçable suffit au MVP pour une assertion utilisée comme filtre dur.
+- La promotion LLM conserve réviseur, date, justification, sources et lien vers la suggestion initiale.
+- `FLOODGATE` combine détection candidate, qualification humaine, relation `LOCKS` et validation déterministe.
+- `ADDS_TO_HAND`, `RESTRICTS` et `SYNERGIZES_WITH` restent différés.
 
-## 12. Recommandation finale avant validation
+## 12. Critères d'acceptation de D-010
 
-- **FunctionalTag à conserver :** les quinze tags proposés, sous réserve du renommage ci-dessous.
-- **FunctionalTag à renommer :** `ENGINE_REQUIREMENT` → `REQUIRED_ENGINE_PIECE` recommandé ; aucun remplacement n'est appliqué avant validation.
-- **FunctionalTag à reporter :** aucun parmi les quinze ; `OTK_ENABLER`, `GENERIC`, `BOSS` et autres concepts déjà exclus restent reportés.
-- **CardRelation à conserver :** les douze relations proposées.
-- **CardRelation à renommer :** aucune nécessaire ; `MATERIAL_FOR` doit seulement rester contextuelle et conditionnée.
-- **CardRelation à reporter :** `ADDS_TO_HAND` générique, `RESTRICTS` distinct et `SYNERGIZES_WITH` vague restent reportés.
-
-La frontière Tag/Relation est suffisamment propre pour une validation future : les points encore ouverts relèvent du nommage et de la gouvernance de revue, non d'une refonte de la taxonomie.
-
-## 13. Critères d'acceptation de D-010
-
-- [ ] Les FunctionalTag MVP et leurs définitions sont approuvés.
-- [ ] Les CardRelation MVP et leur direction sont approuvées.
-- [ ] La représentation intrinsèque/contextuelle est approuvée.
-- [ ] Les origines, niveaux de confiance et statuts de revue sont approuvés.
-- [ ] La politique de traitement des suggestions LLM est approuvée.
-- [ ] Les concepts différés et les frontières avec le Rules Engine sont approuvés.
+- [x] Les FunctionalTag MVP et leurs définitions sont approuvés.
+- [x] Les CardRelation MVP et leur direction sont approuvées.
+- [x] La représentation intrinsèque/contextuelle est approuvée.
+- [x] Les origines, niveaux de confiance et statuts de revue sont approuvés.
+- [x] La politique de traitement des suggestions LLM est approuvée.
+- [x] Les concepts différés et les frontières avec le Rules Engine sont approuvés.
 
