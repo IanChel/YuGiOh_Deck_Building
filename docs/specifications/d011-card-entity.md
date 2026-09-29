@@ -2,7 +2,7 @@
 
 ## Statut
 
-**Proposed — validation humaine requise.**
+**Accepted — validée le 2026-09-29.**
 
 Ce document définit le modèle fonctionnel de `Card`. Il ne crée aucun modèle de code, enum, table SQL, migration, import ou dataset.
 
@@ -123,8 +123,8 @@ Le `passcode` est donc représenté comme référence externe de type `PASSCODE`
 | `rank` | entier borné | Conditionnel | Canonique de source | Uniquement monstres Xyz |
 | `link_rating` | entier borné | Conditionnel | Canonique de source | Uniquement monstres Link |
 | `link_markers` | ensemble de directions contrôlées | Conditionnel | Canonique de source | Uniquement Link ; cohérent avec `link_rating` |
-| `pendulum_scale_left` | entier borné | Conditionnel | Canonique de source | Monstres Pendulum uniquement |
-| `pendulum_scale_right` | entier borné | Conditionnel | Canonique de source | Préserve les deux emplacements du cadre sans supposer leur égalité éternelle |
+| `scale_left` | entier borné | Conditionnel | Canonique de source | Échelle gauche des monstres Pendulum |
+| `scale_right` | entier borné | Conditionnel | Canonique de source | Échelle droite distincte ; aucune égalité avec l'échelle gauche n'est supposée |
 | `atk` | entier ou valeur inconnue | Pour Monster lorsque applicable | Canonique de source | Certaines valeurs imprimées sont `?`, distinctes de `NULL` |
 | `def` | entier ou valeur inconnue | Pour Monster non-Link lorsque applicable | Canonique de source | Absent pour Link ; `?` distinct de non applicable |
 | `spell_trap_property` | `NORMAL`, `CONTINUOUS`, `EQUIP`, `FIELD`, `QUICK_PLAY`, `RITUAL`, `COUNTER` | Pour Spell/Trap | Canonique de source | Classification propre aux Magies/Pièges |
@@ -180,7 +180,7 @@ Il ne faut donc pas dupliquer `canonical_name_en` ou le texte anglais dans `Card
 | `provenance` | référence de source/annotation | Oui | Provenance | Empêche les alias inventés d'apparaître comme noms officiels |
 | `validity` | intervalle/snapshot facultatif | Non | Versionné | Gestion des changements de nom |
 
-Un surnom communautaire n'entre pas automatiquement dans le catalogue canonique ; il exige une politique distincte.
+`CardNameAlias` reste un concept séparé de `CardLocalization` : une localisation porte un nom officiel dans une langue, tandis qu'un alias aide la recherche et la résolution d'anciens noms ou de variantes contrôlées. Un surnom communautaire n'entre pas automatiquement dans le catalogue canonique ; il exige une politique distincte.
 
 ### 3.6 CardArchetypeMembership — appartenance structurelle
 
@@ -408,14 +408,14 @@ Champs conceptuels minimaux :
 | `format_family` | TCG au MVP |
 | `available_from` | Date de première disponibilité vérifiée si connue |
 | `available_until` | Exception/retrait éventuel, normalement absent |
-| `availability_status` | `AVAILABLE`, `NOT_RELEASED`, `RESTRICTED_EVENT_ONLY`, `UNKNOWN` |
+| `availability_status` | `AVAILABLE`, `UNAVAILABLE`, `UNKNOWN` |
 | `evidence_ref` | Source officielle justifiant l'assertion |
 
 La disponibilité répond : « cette carte appartient-elle au pool régional à cette date ? » La banlist répond séparément : « combien de copies sont autorisées dans ce format/snapshot ? »
 
 `CardAvailability` est donc conceptuellement rattachée à `CatalogueSnapshot`, ou à une représentation versionnée strictement équivalente. Une même carte peut avoir une disponibilité différente dans deux snapshots ; l'ancienne assertion reste immuable et consultable. Les dates décrivent la période métier connue, tandis que `catalogue_snapshot_id` indique dans quelle publication cette connaissance a été retenue. Aucune entrée de banlist, limite de copies ou légalité calculée n'est stockée dans cette entité.
 
-`UNKNOWN` ne devient ni automatiquement légal ni automatiquement illégal : le cas d'usage doit appliquer une politique explicite et conservatrice.
+`UNKNOWN` ne signifie jamais `AVAILABLE` et ne constitue aucune autorisation implicite de déclarer une carte disponible ou légale. Tant qu'une preuve suffisante n'est pas rattachée à un snapshot ultérieur, toute validation positive qui exige la disponibilité doit échouer ou rester indéterminée selon le contrat du cas d'usage ; elle ne peut pas réussir par défaut.
 
 ## 12. Champs à explicitement exclure de Card
 
@@ -460,7 +460,7 @@ CardSnapshot
   monster_frame_kinds / monster_abilities
   monster_race / attribute
   level / rank / link_rating / link_markers
-  pendulum scales
+  scale_left / scale_right
   atk / def (numérique, ? ou non applicable)
   spell_trap_property
   source_record_ref
@@ -487,18 +487,20 @@ CardImage (minimal, sous réserve D-008)
 
 Les alias, index de recherche et valeurs dérivées sont conservés comme concepts séparés mais peuvent être matérialisés seulement si le besoin d'implémentation le justifie.
 
-## 15. Questions nécessitant validation humaine
+## 15. Décisions finales
 
-1. Valider définitivement `card_id` comme entier interne généré, indépendant du passcode et des fournisseurs.
-2. Valider le report de `identity_status` et `merged_into_card_id` jusqu'à la définition d'un véritable workflow de fusion d'identités.
-3. Valider le principe logique d'au plus un `CardSnapshot` par paire carte/snapshot, sans choisir la stratégie physique.
-4. Valider que tous les noms et textes, anglais compris, résident dans `CardLocalization`, avec français facultatif et fallback anglais.
-5. Valider la simplification de `CardArchetypeMembership` à la seule appartenance structurelle sourcée ; les références textuelles explicites restent différées et les associations stratégiques restent dans D-010.
-6. Confirmer si les deux échelles Pendulum doivent être conservées séparément dès le MVP.
-7. Décider si `CardNameAlias` est inclus dans le MVP ou reporté après la recherche bilingue de base.
-8. Confirmer que les séries distinctes des archétypes restent reportées.
-9. Décider si les métadonnées minimales d'image peuvent être préparées avant la résolution de D-008, sans ingestion ni publication d'image.
-10. Fixer la politique de validation lorsque `CardAvailability.availability_status=UNKNOWN` ; la structure reste indépendante de la banlist.
+- `card_id` est l'identité interne générée, indépendante du passcode et des fournisseurs.
+- `Card` reste minimal avec `card_id` et `created_at` ; `identity_status` et `merged_into_card_id` sont reportés.
+- Il existe au plus un `CardSnapshot` conceptuel par paire carte/snapshot, sans décision de stockage physique.
+- Tous les noms et textes linguistiques résident dans `CardLocalization` ; l'anglais est canonique, le français facultatif avec fallback anglais explicite.
+- `CardNameAlias` est distinct des noms officiels et sert notamment à la recherche et à la résolution d'anciens noms.
+- `CardArchetypeMembership` porte uniquement l'appartenance structurelle sourcée ; les associations stratégiques restent dans D-010.
+- `scale_left` et `scale_right` sont conservées comme deux valeurs distinctes pour les cartes Pendulum.
+- ATK/DEF distinguent une valeur numérique, `?` et la non-applicabilité.
+- `CardAvailability` est versionnée avec le catalogue, séparée de la banlist et limitée aux états disponible, indisponible et inconnu ; `UNKNOWN` n'autorise jamais une validation positive implicite.
+- Les références externes restent multiples et typées sans devenir l'identité interne principale.
+- Les images restent des ressources externes référencées et versionnées. Aucune modélisation supplémentaire ni décision juridique n'est ajoutée avant D-008.
+- Toute entité `Series` distincte d'`Archetype` est reportée.
 
 ## 16. Dépendances
 

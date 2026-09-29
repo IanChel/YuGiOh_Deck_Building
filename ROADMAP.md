@@ -26,9 +26,9 @@
 |---|---|
 | Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
 | Tâche en cours | Préparer le dictionnaire de données et le schéma logique de Phase 1 |
-| Prochaine tâche | Spécifier l'entité `Card` champ par champ : types, nullabilité, domaines, identifiants et provenance |
+| Prochaine tâche | Spécifier `CardLocalization` et la politique de fallback français → anglais dans le dictionnaire de données |
 | Blocages | D-008 juridique bloque toute publication/distribution ; aucun blocage D-009 ne subsiste pour la spécification de Phase 1 |
-| Décisions récentes | D-001 à D-007, D-009 et D-010 acceptées ; D-010 fige 15 `FunctionalTag`, 12 `CardRelation`, une confiance catégorielle et une promotion LLM sous revue humaine |
+| Décisions récentes | D-001 à D-007 et D-009 à D-011 acceptées ; D-011 fixe l'identité minimale de `Card` et ses frontières versionnées sans choix de stockage physique |
 
 ### Règles de mise à jour
 
@@ -1254,7 +1254,7 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | [ ] | **D-008 — Quelles sources/licences sont acceptables ?** | Images distantes ; auto-hébergement ; contenu minimal ; conditions distinctes local/public/commercial | Clarifier juridiquement API, données, textes, images et marques avant publication/distribution | Le développement local peut avancer avec des fixtures prudentes, mais aucune conclusion juridique n'est acquise |
 | [x] | **D-009 — Quel jeu de données/archétypes pilotes pour valider le moteur ?** | Petit corpus par mécanique ; corpus par complexité stratégique ; combinaison incluant cartes génériques et deck sans archétype | **Accepté :** Blue-Eyes ; Branded/Despia/Fallen of Albaz ; Swordsoul/Tenyi ; Purrely ; Salamangreat ; D/D/D/Dark Contract ; Drytron ; Labrynth ; Sky Striker ; Floowandereeze, complétés par les micro-fixtures validées | Fixtures et golden tests uniquement ; aucune limitation du catalogue, de la construction utilisateur ou du pool de candidats de production |
 | [x] | **D-010 — Quel vocabulaire minimal pour les rôles et relations ?** | Tags booléens simples ; taxonomie exhaustive ; assertions contextuelles versionnées | **Accepté :** 15 `FunctionalTag` dont `ENGINE_REQUIREMENT` et `FLOODGATE`, 12 `CardRelation`, cibles carte/sélecteur versionné, confiance catégorielle et promotion LLM par une revue humaine traçable | Frontière Tag/rôle et Relation/source→cible figée ; aucune suggestion LLM non revue ne peut servir de filtre dur |
-| [ ] | **D-011 — Quel LLM et quel budget ?** | Fournisseur unique ; multi-fournisseur ; local | Port fournisseur, benchmark de modèles compatibles JSON, plafond mensuel et coût par génération | Choix fondé sur qualité/coût/latence réels, pas sur la popularité |
+| [x] | **D-011 — Quelles frontières conceptuelles pour l'entité `Card` ?** | Identité stable minimale ; propriétés/localisations versionnées ; références et disponibilités séparées | **Accepté :** `Card` minimal, `CardSnapshot` par snapshot, localisations et alias séparés, appartenance structurelle sourcée, disponibilité versionnée et références externes typées | Aucun choix de stockage physique ; images soumises à D-008 ; fusion d'identités et `Series` reportées |
 | [ ] | **D-012 — RAG et embeddings ?** | Dès le MVP ; PostgreSQL/FTS ; pgvector plus tard | Aucun RAG/vector DB au MVP | Les données utiles sont structurées ; une nouvelle infrastructure n'est justifiée que par un corpus documentaire évalué |
 | [ ] | **D-013 — Quel format d'import/export ?** | YDK ; JSON interne ; CSV ; formats tiers | YDK utilisateur + JSON interne versionné | Compatibilité pratique et contrat interne sans perte |
 | [ ] | **D-014 — Quels objectifs non fonctionnels ?** | Best effort ; SLO chiffrés | p95 moteur < 3 s, IA < 15 s, seuils coût/erreur à fixer | Rend les arbitrages et le Go/No-Go mesurables |
@@ -1317,3 +1317,4 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-29 | Proposition D-010 : vocabulaire minimal, provenance/confiance et ADR-0010 | En attente de validation humaine |
 | 2026-09-29 | Revue ciblée D-010 : frontières, chevauchements, `FLOODGATE`, sélecteurs et promotion LLM clarifiés | D-010 reste `Proposed` |
 | 2026-09-29 | Validation explicite de D-010 et passage de l'ADR-0010 au statut `Accepted` | Terminé |
+| 2026-09-29 | Validation de D-011 : identité `Card` minimale, frontières versionnées et passage de l'ADR-0011 à `Accepted` | Terminé |

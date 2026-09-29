@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
@@ -10,7 +10,7 @@ Proposed
 
 ## Decision
 
-Proposition soumise à validation :
+Décision acceptée :
 
 - utiliser un `card_id` numérique interne et immuable comme référence métier ;
 - placer les identifiants catalogue, passcodes et identifiants fournisseurs dans des références externes multiples, sans en faire l'identité interne ;
@@ -22,7 +22,11 @@ Proposition soumise à validation :
 - traiter les images comme des ressources externes référencées et versionnées, sans préjuger D-008 ;
 - maintenir banlists, annotations D-010, relations et calculs de recommandation hors de `Card` ;
 - distinguer pour ATK/DEF une valeur numérique, `?` et la non-applicabilité, sans multiplier les types ;
-- différer `identity_status` et `merged_into_card_id` jusqu'à la définition d'un workflow fiable de fusion/dédoublonnage.
+- conserver deux échelles Pendulum distinctes, `scale_left` et `scale_right` ;
+- conserver `CardNameAlias` séparé des localisations officielles pour la recherche et la résolution d'anciens noms ;
+- limiter les états de disponibilité à disponible, indisponible et inconnu, sans jamais interpréter `UNKNOWN` comme une autorisation implicite ;
+- différer `identity_status`, `merged_into_card_id` et toute entité `Series` distincte jusqu'à ce qu'un besoin et un workflow fiables soient définis ;
+- ne pas enrichir le modèle d'image avant la résolution des contraintes D-008.
 
 La spécification complète et les questions ouvertes sont décrites dans [`docs/specifications/d011-card-entity.md`](../specifications/d011-card-entity.md).
 
