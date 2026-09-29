@@ -33,6 +33,28 @@ Card — identité stable
 
 Cette séparation peut être matérialisée différemment lors de l'implémentation, mais ses frontières sémantiques doivent être conservées.
 
+### Relation normative Card / CardSnapshot / CatalogueSnapshot
+
+```text
+Card
+  = identité durable
+
+CatalogueSnapshot
+  = publication immuable d'un état du catalogue
+
+CardSnapshot
+  = représentation des propriétés intrinsèques de Card
+    telle qu'exposée dans un CatalogueSnapshot donné
+```
+
+- Une `Card` peut apparaître dans zéro, un ou plusieurs `CatalogueSnapshot`.
+- Pour une paire `(card_id, catalogue_snapshot_id)`, il existe conceptuellement au plus une représentation de la carte.
+- Un `CatalogueSnapshot` regroupe toutes les représentations publiées ensemble et fournit la version de référence aux decks, validations et analyses.
+- Une correction de propriété ou un errata apparaît dans un nouveau `CatalogueSnapshot` ; l'ancien `CardSnapshot` demeure observable dans son contexte historique.
+- Une carte nouvellement publiée apparaît dans un nouveau snapshot sans altérer les snapshots antérieurs.
+
+Le concept « une représentation de carte par `CatalogueSnapshot` » est adapté au MVP parce qu'il rend la lecture et la reproductibilité explicites. Il s'agit d'une **vue logique**, pas d'une décision de stockage : copie complète, révisions partagées, déduplication ou autre stratégie physique restent ouvertes.
+
 ## 2. Identité et identifiants
 
 ### Décision proposée
@@ -41,6 +63,15 @@ Cette séparation peut être matérialisée différemment lors de l'implémentat
 - `source_card_id` est l'identifiant de la carte chez une source donnée ; il n'est jamais la clé primaire interne.
 - `passcode` est le numéro imprimé de huit chiffres lorsqu'il existe ; il est optionnel et ne doit pas être supposé universel.
 - Les identifiants multiples sont portés par `CardExternalReference`, avec `source`, `external_id`, type d'identifiant et période de validité.
+
+Distinction normative :
+
+- `card_id` : identité interne numérique, seule clé métier utilisée entre les modules du produit ;
+- identifiant catalogue externe : identifie un enregistrement chez YGOPRODeck, KONAMI ou une autre source ;
+- passcode/code officiel : référence imprimée ou officielle lorsqu'elle existe, conservée comme un type de référence externe ;
+- identifiant fournisseur : toute autre clé technique propre à une API, un artwork ou une base.
+
+Plusieurs références externes peuvent pointer vers le même `card_id`. Aucune n'est promue implicitement en identité interne principale.
 
 Cette proposition respecte D-004 : l'identité technique principale est numérique tout en évitant de coupler le domaine à YGOPRODeck ou à une source externe.
 
@@ -58,11 +89,11 @@ Cette proposition respecte D-004 : l'identité technique principale est numériq
 | Champ | Type conceptuel | Obligatoire | Nature | Justification |
 |---|---|---:|---|---|
 | `card_id` | entier positif immuable | Oui | Canonique interne | Référence stable dans tout le domaine |
-| `identity_status` | état contrôlé (`ACTIVE`, `MERGED`, `RETIRED`, `UNRESOLVED`) | Oui | Canonique interne | Gérer correction de dédoublonnage sans supprimer l'historique |
-| `merged_into_card_id` | référence vers `Card` | Conditionnel | Canonique interne | Redirection explicite après fusion validée ; présent seulement si `MERGED` |
 | `created_at` | instant | Oui | Métadonnée interne | Audit de création de l'identité |
 
 `Card` ne contient pas de nom, texte, statistique, langue ou statut légal directement : ces valeurs peuvent varier ou nécessitent une provenance de snapshot.
+
+`identity_status` et `merged_into_card_id` sont **différés**. Aucun workflow fiable de fusion/dédoublonnage d'identités n'est encore défini. Au MVP, une collision ou correspondance incertaine bloque la publication du snapshot et déclenche une revue d'import ; elle ne produit pas une fusion métier automatique. Ces champs pourront être réintroduits avec un ADR dédié si un cas réel justifie redirection, fusion ou retrait.
 
 ### 3.2 CardExternalReference — identifiants de source
 
@@ -102,6 +133,18 @@ Le `passcode` est donc représenté comme référence externe de type `PASSCODE`
 
 Les bornes exactes et domaines seront fixés dans le dictionnaire de données, pas dans cette décision conceptuelle.
 
+#### Valeurs numériques conditionnelles
+
+Pour `atk` et `def`, le modèle conceptuel doit distinguer trois états métier sans utiliser une valeur sentinelle numérique :
+
+- **numérique** : une valeur entière est fournie, y compris `0` ;
+- **inconnue imprimée** : la valeur officielle est `?` ;
+- **non applicable** : la propriété n'existe pas pour cette catégorie de carte, par exemple la DEF d'un monstre Link.
+
+Une absence accidentelle dans la source n'est pas un quatrième état métier : c'est une anomalie de qualité à mettre en quarantaine ou à signaler avant publication. Conceptuellement, une paire simple « état + valeur facultative » suffit pour ATK/DEF ; D-011 n'impose ni classe générique ni type spécialisé par propriété.
+
+Pour `level`, `rank`, `link_rating` et les échelles Pendulum, l'applicabilité découle de la classification. Une valeur numérique est présente lorsqu'elle est applicable et la propriété est absente lorsqu'elle ne l'est pas. Une valeur manquante alors qu'elle est requise constitue également une anomalie de qualité. La valeur spéciale `?` ne doit pas être généralisée à une propriété qui ne la prévoit pas officiellement.
+
 ### 3.4 CardLocalization — noms et textes
 
 | Champ | Type conceptuel | Obligatoire | Nature | Justification |
@@ -114,6 +157,17 @@ Les bornes exactes et domaines seront fixés dans le dictionnaire de données, p
 | `pendulum_text` | chaîne Unicode | Pour Pendulum si fourni | Externe/versionné | Zone de texte Pendulum distincte |
 | `translation_status` | `OFFICIAL`, `SOURCE_PROVIDED`, `MISSING`, `UNVERIFIED` | Oui | Provenance | Ne présente pas une traduction non vérifiée comme officielle |
 | `source_record_ref` | référence au record brut/import | Oui | Provenance | Audit du texte exact |
+
+Frontière finale :
+
+- `CardSnapshot` contient uniquement les propriétés non linguistiques d'une représentation de carte.
+- `CardLocalization` contient tous les noms et textes dépendant d'une langue, y compris l'anglais.
+- Une localisation est liée à la même paire `card_id + catalogue_snapshot_id` afin qu'un texte corresponde exactement à la version des propriétés.
+- L'anglais est la localisation canonique exigée pour publier un snapshot MVP lorsque la source le fournit.
+- Le français est facultatif ; son absence déclenche un fallback d'affichage explicite vers la localisation anglaise du même snapshot.
+- Une traduction générée par LLM peut être conservée uniquement comme suggestion non canonique hors de `CardLocalization` officielle ; elle ne reçoit jamais `OFFICIAL` ou `SOURCE_PROVIDED` sans validation et provenance adéquates.
+
+Il ne faut donc pas dupliquer `canonical_name_en` ou le texte anglais dans `CardSnapshot`.
 
 ### 3.5 CardNameAlias — alias de recherche
 
@@ -134,11 +188,18 @@ Un surnom communautaire n'entre pas automatiquement dans le catalogue canonique 
 |---|---|---:|---|---|
 | `card_id` | référence `Card` | Oui | Canonique interne | Carte membre/associée |
 | `archetype_id` | référence `Archetype` | Oui | Externe/versionné | Appartenance déclarée par la source retenue |
-| `membership_kind` | `MEMBER`, `EXPLICITLY_LISTED_SUPPORT` | Oui | Canonique interne | Sépare appartenance et support textuel structurel |
 | `catalogue_snapshot_id` | référence snapshot | Oui | Versionné | Reproductibilité |
 | `provenance` | référence source | Oui | Provenance | Les archétypes YGOPRODeck restent éditoriaux et traçables |
 
-Une association stratégique, compatibilité ou synergie n'est jamais une appartenance : elle relève de D-010 (`SUPPORTS`, `ENABLES`, etc.). Les « séries » non équivalentes à un archétype seront ajoutées ultérieurement si un besoin de recherche validé apparaît.
+Pour le MVP, `CardArchetypeMembership` représente uniquement une **appartenance structurelle sourcée**. La distinction `MEMBER` / `EXPLICITLY_LISTED_SUPPORT` est supprimée de la proposition minimale : la source opérationnelle ne fournit pas nécessairement une sémantique assez fiable pour maintenir cette distinction sans interprétation.
+
+Les trois concepts restent séparés :
+
+1. **Appartenance structurelle :** `CardArchetypeMembership`, assertion de catalogue sourcée et versionnée.
+2. **Référence explicite dans le texte :** fait linguistique/dérivé pouvant être extrait ultérieurement dans une structure dédiée ; reporté au MVP tant qu'un besoin de recherche ne l'exige pas.
+3. **Association stratégique :** annotation D-010 telle que `SUPPORTS` ou `ENABLES`, jamais transformée en appartenance.
+
+Les « séries » non équivalentes à un archétype restent reportées. Une carte peut avoir plusieurs appartenances structurelles si la source et la revue le justifient.
 
 ### 3.7 CardImage — référence d'image minimale
 
@@ -152,7 +213,9 @@ Une association stratégique, compatibilité ou synergie n'est jamais une appart
 | `source_code` | source | Oui | Provenance | Droits et retrait |
 | `catalogue_snapshot_id` | snapshot | Oui | Versionné | Audit de la référence |
 
-Une URL d'image ne fait pas partie de l'identité stable de `Card`. D-008 reste un prérequis à la publication ou à l'auto-hébergement.
+Une image est une **ressource externe référencée par le catalogue**, pas une propriété identitaire ni un blob nécessaire dans `CardSnapshot`. Pour le MVP conceptuel, seuls sont nécessaires : carte, snapshot, source, identifiant/URL externe, caractère principal ou alternatif et variante de résolution disponible. Largeur, hauteur, format MIME, checksum ou stockage local ne seront ajoutés que si le pipeline ou D-008 les exige.
+
+Une URL d'image ne fait pas partie de l'identité stable de `Card`. D-008 reste un prérequis à la publication ou à l'auto-hébergement ; D-011 ne conclut rien sur les droits.
 
 ## 4. Classification des champs
 
@@ -170,7 +233,7 @@ Ils sont « intrinsèques » au sens produit, mais stockés dans un snapshot car
 ### Identité stable
 
 - `card_id` ;
-- état d'identité et redirection de fusion validée.
+- date de création interne de cette identité.
 
 ### Externes
 
@@ -257,7 +320,9 @@ Règles :
 | Tuner/Flip/Gemini/Union/Spirit/Toon | entrée dans `monster_abilities`, combinable avec les frames compatibles |
 | Spell | catégorie `SPELL`, propriété Spell/Trap adaptée, statistiques monstre absentes |
 | Trap | catégorie `TRAP`, propriété Normal/Continuous/Counter, statistiques monstre absentes |
-| ATK/DEF `?` | valeur conceptuelle `UNKNOWN_PRINTED_VALUE`, différente de `NULL` non applicable |
+| ATK/DEF numériques | entier, y compris `0` |
+| ATK/DEF `?` | état conceptuel « inconnue imprimée », sans valeur numérique |
+| ATK/DEF non applicables | état « non applicable », distinct de `?` et de `0` |
 | Carte sans traduction française | localisation FR absente ou `MISSING`, fallback UI anglais explicite |
 
 Les règles d'applicabilité empêchent de confondre `0`, `?`, absent et non applicable.
@@ -304,7 +369,7 @@ Elles portent :
 
 ### Appartenance stable
 
-`Card` conserve uniquement l'identité et son état interne.
+`Card` conserve uniquement l'identité stable et sa date de création interne.
 
 ### Appartenance au CatalogueSnapshot
 
@@ -338,14 +403,17 @@ Champs conceptuels minimaux :
 | Champ | Rôle |
 |---|---|
 | `card_id` | Carte concernée |
+| `catalogue_snapshot_id` | État du catalogue auquel la disponibilité appartient |
 | `territory_code` | EMEA au MVP, extensible |
 | `format_family` | TCG au MVP |
 | `available_from` | Date de première disponibilité vérifiée si connue |
 | `available_until` | Exception/retrait éventuel, normalement absent |
 | `availability_status` | `AVAILABLE`, `NOT_RELEASED`, `RESTRICTED_EVENT_ONLY`, `UNKNOWN` |
-| `evidence_ref` | Source officielle et snapshot |
+| `evidence_ref` | Source officielle justifiant l'assertion |
 
 La disponibilité répond : « cette carte appartient-elle au pool régional à cette date ? » La banlist répond séparément : « combien de copies sont autorisées dans ce format/snapshot ? »
+
+`CardAvailability` est donc conceptuellement rattachée à `CatalogueSnapshot`, ou à une représentation versionnée strictement équivalente. Une même carte peut avoir une disponibilité différente dans deux snapshots ; l'ancienne assertion reste immuable et consultable. Les dates décrivent la période métier connue, tandis que `catalogue_snapshot_id` indique dans quelle publication cette connaissance a été retenue. Aucune entrée de banlist, limite de copies ou légalité calculée n'est stockée dans cette entité.
 
 `UNKNOWN` ne devient ni automatiquement légal ni automatiquement illégal : le cas d'usage doit appliquer une politique explicite et conservatrice.
 
@@ -384,8 +452,6 @@ Pour le MVP, valider conceptuellement les frontières suivantes :
 ```text
 Card
   card_id
-  identity_status
-  merged_into_card_id?
   created_at
 
 CardSnapshot
@@ -395,7 +461,7 @@ CardSnapshot
   monster_race / attribute
   level / rank / link_rating / link_markers
   pendulum scales
-  atk / def
+  atk / def (numérique, ? ou non applicable)
   spell_trap_property
   source_record_ref
 
@@ -408,8 +474,14 @@ CardLocalization
   source_record_ref
 
 CardExternalReference
+  plusieurs identifiants externes typés par card_id
+
 CardAvailability
+  card_id + catalogue_snapshot_id + territoire/format
+
 CardArchetypeMembership
+  appartenance structurelle sourcée uniquement
+
 CardImage (minimal, sous réserve D-008)
 ```
 
@@ -417,16 +489,16 @@ Les alias, index de recherche et valeurs dérivées sont conservés comme concep
 
 ## 15. Questions nécessitant validation humaine
 
-1. `card_id` doit-il être un entier interne généré, plutôt que le passcode ou l'identifiant YGOPRODeck ?
-2. Le modèle doit-il conserver `identity_status`/`merged_into_card_id` dès le MVP ou reporter la fusion d'identités ?
-3. Les deux échelles Pendulum doivent-elles être conservées séparément dès le MVP ?
-4. `CardNameAlias` est-il inclus dans le MVP ou reporté après la recherche bilingue de base ?
-5. L'appartenance structurelle distingue-t-elle dès maintenant `MEMBER` et `EXPLICITLY_LISTED_SUPPORT` ?
-6. Les séries distinctes des archétypes restent-elles reportées ?
-7. Les images sont-elles complètement omises tant que D-008 n'est pas clarifiée, ou leurs métadonnées peuvent-elles être préparées localement ?
-8. La politique conservatrice pour `CardAvailability=UNKNOWN` doit-elle refuser une validation positive ?
-9. Les valeurs ATK/DEF `?` utilisent-elles une valeur contrôlée distincte d'un nombre et de `NULL` ?
-10. Le modèle minimal `CardSnapshot` par snapshot est-il accepté conceptuellement, en laissant la déduplication à la conception physique ?
+1. Valider définitivement `card_id` comme entier interne généré, indépendant du passcode et des fournisseurs.
+2. Valider le report de `identity_status` et `merged_into_card_id` jusqu'à la définition d'un véritable workflow de fusion d'identités.
+3. Valider le principe logique d'au plus un `CardSnapshot` par paire carte/snapshot, sans choisir la stratégie physique.
+4. Valider que tous les noms et textes, anglais compris, résident dans `CardLocalization`, avec français facultatif et fallback anglais.
+5. Valider la simplification de `CardArchetypeMembership` à la seule appartenance structurelle sourcée ; les références textuelles explicites restent différées et les associations stratégiques restent dans D-010.
+6. Confirmer si les deux échelles Pendulum doivent être conservées séparément dès le MVP.
+7. Décider si `CardNameAlias` est inclus dans le MVP ou reporté après la recherche bilingue de base.
+8. Confirmer que les séries distinctes des archétypes restent reportées.
+9. Décider si les métadonnées minimales d'image peuvent être préparées avant la résolution de D-008, sans ingestion ni publication d'image.
+10. Fixer la politique de validation lorsque `CardAvailability.availability_status=UNKNOWN` ; la structure reste indépendante de la banlist.
 
 ## 16. Dépendances
 
