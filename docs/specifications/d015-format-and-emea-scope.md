@@ -2,7 +2,7 @@
 
 ## Statut
 
-**Proposed — validation humaine requise.**
+**Accepted — validée le 2026-09-29.**
 
 Cette spécification définit le contexte conceptuel du format MVP. Elle ne crée aucun code, classe, enum technique, SQL, ORM, migration, import, seed, dataset ou logique de validation de deck.
 
@@ -285,13 +285,13 @@ D-015 exclut explicitement :
 - importer de production ;
 - catalogue physique et dataset de production.
 
-## 17. Questions de validation finales
+## 17. Décisions finales validées
 
-1. La séparation `Format` stable / `FormatSnapshot` immuable et temporel est-elle acceptée, le snapshot ne contenant ni liste de cartes ni limitations de banlist ?
-2. EMEA doit-il être représenté par une identité contrôlée minimale `RegionalScope`, séparée de `TCG_ADVANCED`, avec définition et provenance propres mais sans taxonomie mondiale au MVP ?
-3. Les périodes d'effet doivent-elles utiliser des intervalles `[effective_from, effective_until)`, distincts de `published_at` et `analyzed_at`, avec supersession explicite pour les corrections historiques ?
-4. Le contexte reproductible doit-il épingler séparément `FormatSnapshot`, `RegionalScope`, `CatalogueSnapshot` et le futur `BanlistSnapshot`, sans imbriquer physiquement ces snapshots ?
-5. La légalité positive doit-elle exiger une disponibilité `AVAILABLE` dans le snapshot/région retenu puis l'évaluation de la banlist et des règles du format, tandis que `UNKNOWN`, `UNAVAILABLE` ou l'absence d'information interdisent toute conclusion positive implicite ?
+1. `Format` est une identité stable et `FormatSnapshot` une représentation temporelle immuable. Le snapshot ne contient directement ni liste de cartes ni contenu de banlist.
+2. EMEA est une identité contrôlée minimale `RegionalScope`, distincte de `Format`, avec définition et provenance propres. Aucune taxonomie mondiale n'est introduite au MVP.
+3. Les périodes d'effet utilisent les intervalles `[effective_from, effective_until)`, distincts de `published_at` et `analyzed_at`. Toute correction historique produit un nouveau snapshot avec supersession explicite, sans réécriture.
+4. Le contexte reproductible épingle séparément `FormatSnapshot`, `RegionalScope`, `CatalogueSnapshot` et le futur `BanlistSnapshot`. Aucune fusion physique prématurée de ces concepts n'est décidée.
+5. Une conclusion positive de légalité exige une disponibilité `AVAILABLE` dans le contexte régional et catalogue retenu, puis l'évaluation de la banlist et des règles du format. `UNKNOWN`, `UNAVAILABLE` ou l'absence d'information n'autorisent jamais une conclusion positive implicite.
 
 ## 18. Proposition minimale
 

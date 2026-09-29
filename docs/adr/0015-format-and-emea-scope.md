@@ -2,13 +2,13 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
 Le MVP doit déterminer ultérieurement la légalité d'une carte dans TCG Advanced EMEA sans placer un booléen global sur `Card`. Le format, la région, le catalogue, la disponibilité et la banlist évoluent selon des temporalités différentes et doivent rester reproductibles.
 
-## Proposed decision
+## Decision
 
 - représenter `TCG_ADVANCED` par une identité `Format` stable, indépendante de toute région et banlist ;
 - représenter l'état temporel du cadre par un `FormatSnapshot` immuable avec dates d'effet, publication, provenance et éventuelle supersession ;
@@ -21,7 +21,7 @@ Le MVP doit déterminer ultérieurement la légalité d'une carte dans TCG Advan
 - conserver tout ancien résultat sur ses références originales après une transition ou correction ;
 - ne définir aucune logique de validation de deck dans D-015.
 
-La proposition complète et ses questions de validation sont décrites dans [`docs/specifications/d015-format-and-emea-scope.md`](../specifications/d015-format-and-emea-scope.md).
+La spécification complète et les décisions validées sont décrites dans [`docs/specifications/d015-format-and-emea-scope.md`](../specifications/d015-format-and-emea-scope.md).
 
 ## Consequences
 
