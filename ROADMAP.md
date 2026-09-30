@@ -26,9 +26,9 @@
 |---|---|
 | Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
 | Tâche en cours | Préparer le dictionnaire de données et le schéma logique de Phase 1 |
-| Prochaine tâche | Spécifier `DataSource`, `DataSnapshot`, `ImportedFact` et `PublishedDataset` |
+| Prochaine tâche | Définir les clés primaires, identifiants externes, contraintes d'unicité et références immuables du schéma logique |
 | Blocages | D-008 juridique bloque toute publication/distribution ; aucun blocage D-009 ne subsiste pour la spécification de Phase 1 |
-| Décisions récentes | D-001 à D-007 et D-009 à D-016 acceptées ; D-016 fixe les snapshots de banlist, restrictions canoniques et invariants temporels |
+| Décisions récentes | D-001 à D-007 et D-009 à D-017 acceptées ; D-017 fixe la provenance, les captures externes, les faits importés et la publication des datasets validés |
 
 ### Règles de mise à jour
 
@@ -1266,7 +1266,7 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 
 | État | ID et question | Options | Recommandation | Raison |
 |---|---|---|---|---|
-| [ ] | **D-017 — Quel hébergement final ?** | Vercel + PaaS API ; Cloud Run ; PaaS unique | Mesurer localement puis comparer coût, région et simplicité avant Phase 9 | N'empêche pas le domaine et l'API de démarrer |
+| [x] | **D-017 — Comment tracer la provenance et publier les données validées ?** | Modèle fournisseur direct ; provenance agrégée ; chaîne source→capture→fait→publication | **Accepté :** `DataSource`, `DataSnapshot`, `ImportedFact` et `PublishedDataset` distincts, mappings versionnés et lignée par valeur | Autorité par domaine ; conflits conservés ; quarantaine explicite ; `PublishedDataset` séparé de `CatalogueSnapshot` |
 | [ ] | **D-018 — Quel état frontend ?** | React seul ; Zustand ; Redux | TanStack Query + état local, Zustand uniquement si complexité observée | Réduire la surface technique initiale |
 | [ ] | **D-019 — Redis/worker dès le départ ?** | Oui ; non ; service cloud | Non, ajouter après mesure des imports et latences | PostgreSQL et commandes contrôlées suffisent au premier incrément |
 | [ ] | **D-020 — Quel outil de typage Python ?** | mypy ; pyright | Petit spike puis un seul outil en CI | Évite les configurations concurrentes ; impact limité sur l'architecture |
@@ -1323,3 +1323,4 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-29 | Validation de D-014 : appartenance structurelle aux archétypes et passage de l'ADR-0014 à `Accepted` | Terminé |
 | 2026-09-29 | Validation de D-015 : format, temporalité et périmètre TCG Advanced EMEA ; ADR-0015 passé à `Accepted` | Terminé |
 | 2026-09-29 | Validation de D-016 : modèle de banlist, restrictions et invariants temporels ; ADR-0016 passé à `Accepted` | Terminé |
+| 2026-09-30 | Validation de D-017 : provenance, captures, faits importés et publication ; ADR-0017 passé à `Accepted` | Terminé |
