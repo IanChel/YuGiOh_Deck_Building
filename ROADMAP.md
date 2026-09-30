@@ -25,10 +25,10 @@
 | Élément | État |
 |---|---|
 | Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
-| Tâche en cours | Revoir D-018 — identifiants et contraintes d'intégrité du schéma logique |
-| Prochaine tâche | Valider D-018 avant de définir les index logiques nécessaires aux recherches et jointures |
+| Tâche en cours | Préparer le dictionnaire de données et le schéma logique de Phase 1 |
+| Prochaine tâche | Définir les index nécessaires aux recherches nom/alias/type/archétype et aux jointures de validation |
 | Blocages | D-008 juridique bloque toute publication/distribution ; aucun blocage D-009 ne subsiste pour la spécification de Phase 1 |
-| Décisions récentes | D-001 à D-007 et D-009 à D-017 acceptées ; D-017 fixe la provenance, les captures externes, les faits importés et la publication des datasets validés |
+| Décisions récentes | D-001 à D-007 et D-009 à D-018 acceptées ; D-018 fixe les identités internes, contraintes composites, références immuables et règles de quarantaine |
 
 ### Règles de mise à jour
 
@@ -1267,7 +1267,7 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | État | ID et question | Options | Recommandation | Raison |
 |---|---|---|---|---|
 | [x] | **D-017 — Comment tracer la provenance et publier les données validées ?** | Modèle fournisseur direct ; provenance agrégée ; chaîne source→capture→fait→publication | **Accepté :** `DataSource`, `DataSnapshot`, `ImportedFact` et `PublishedDataset` distincts, mappings versionnés et lignée par valeur | Autorité par domaine ; conflits conservés ; quarantaine explicite ; `PublishedDataset` séparé de `CatalogueSnapshot` |
-| [ ] | **D-018 — Quelles identités et contraintes garantissent l'intégrité du schéma logique ?** | Clés fournisseurs ; clés substitutives seules ; identités stables et contraintes composites | **Proposé :** IDs internes immuables, références externes versionnées, unicités contextuelles et références exactes aux snapshots | Validation humaine requise avant traduction en schéma physique ; aucune résolution implicite vers `latest` |
+| [x] | **D-018 — Quelles identités et contraintes garantissent l'intégrité du schéma logique ?** | Clés fournisseurs ; clés substitutives seules ; identités stables et contraintes composites | **Accepté :** IDs internes immuables, références externes versionnées, unicités contextuelles et références exactes aux snapshots | Aucun recyclage, aucune résolution implicite vers `latest`, collisions et incohérences en quarantaine |
 | [ ] | **D-019 — Redis/worker dès le départ ?** | Oui ; non ; service cloud | Non, ajouter après mesure des imports et latences | PostgreSQL et commandes contrôlées suffisent au premier incrément |
 | [ ] | **D-020 — Quel outil de typage Python ?** | mypy ; pyright | Petit spike puis un seul outil en CI | Évite les configurations concurrentes ; impact limité sur l'architecture |
 | [ ] | **D-021 — Quelle solution d'observabilité ?** | Sentry ; fournisseur cloud ; stack OpenTelemetry | Instrumentation OpenTelemetry, backend choisi avant staging | Préserver la portabilité sans retarder le domaine |
@@ -1325,3 +1325,4 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-29 | Validation de D-016 : modèle de banlist, restrictions et invariants temporels ; ADR-0016 passé à `Accepted` | Terminé |
 | 2026-09-30 | Validation de D-017 : provenance, captures, faits importés et publication ; ADR-0017 passé à `Accepted` | Terminé |
 | 2026-09-30 | Proposition D-018 : identifiants internes/externes, unicités composites et références immuables | En attente de validation humaine |
+| 2026-09-30 | Validation de D-018 : identités, intégrité logique et références historiques ; ADR-0018 passé à `Accepted` | Terminé |

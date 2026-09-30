@@ -2,13 +2,13 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
 Le domaine combine des identités durables, des représentations versionnées, des publications immuables et des identifiants externes susceptibles de changer ou d'entrer en conflit. Sans règles explicites, une correction pourrait réécrire le passé, une clé fournisseur pourrait devenir une identité canonique ou un résultat historique pourrait se résoudre vers une version courante différente.
 
-## Proposed decision
+## Decision
 
 - utiliser des identifiants internes générés, immuables et non recyclables pour les entités durables ;
 - donner une identité immuable propre à chaque snapshot, capture, dataset publié, fait importé, annotation et relation ;
@@ -23,7 +23,7 @@ Le domaine combine des identités durables, des représentations versionnées, d
 - mettre collisions, références pendantes et violations d'unicité en quarantaine sans réparation implicite ;
 - conserver la lignée D-017 permettant de remonter d'un résultat aux publications, faits, captures et mappings.
 
-La proposition complète et ses questions de validation sont décrites dans [`docs/specifications/d018-identifiers-and-integrity.md`](../specifications/d018-identifiers-and-integrity.md).
+La spécification complète et les décisions validées sont décrites dans [`docs/specifications/d018-identifiers-and-integrity.md`](../specifications/d018-identifiers-and-integrity.md).
 
 ## Consequences
 

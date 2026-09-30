@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed — validation humaine requise.**
+**Accepted — validée le 2026-09-30.**
 
 Ce document définit les identités, unicités et références du modèle logique. Il ne choisit ni clés SQL, types physiques, ORM, migrations, index ou stratégie de stockage.
 
@@ -344,25 +344,23 @@ Le système peut proposer une reproduction « corrigée » avec des versions sup
 | Snapshot supersédé | Anciennes références restent sur l'ancien identifiant |
 | Code métier renommé | Alias/libellé séparé ou migration de code explicitement gouvernée ; aucun recyclage |
 
-## 14. Validation questions
+## 14. Final decisions
 
-### Validation questions
-
-1. Les entités durables (`Card`, `Archetype`, `Format`, `RegionalScope`, `Banlist`, `DataSource`) doivent-elles utiliser des identifiants internes générés, immuables et jamais réutilisés, indépendants de leurs noms et références externes ?
-2. Chaque snapshot, capture, dataset publié, fait importé, annotation et relation doit-il posséder une identité immuable de l'occurrence exacte, toute correction créant une nouvelle occurrence ou supersession ?
-3. Les identités composites proposées pour `CardSnapshot`, `CardLocalization`, `CardAvailability`, `CardArchetypeMembership` et `BanlistEntry` doivent-elles rester les contraintes métier normatives, même si une future implémentation ajoute une clé technique ?
-4. Les identifiants YGOPRODeck, passcodes et autres références externes doivent-ils rester typés, sourcés et versionnés, sans jamais remplacer `card_id` ni être réattribués silencieusement ?
-5. Les codes métier `format_code`, `scope_code` et `source_code` doivent-ils être des clés candidates uniques et non recyclables, mais distinctes des clés primaires internes ?
-6. `FunctionalAnnotation` et `CardRelation` doivent-elles avoir leurs propres identifiants afin de conserver provenance, revue et supersession, avec interdiction des duplicatas canoniques exacts ?
-7. Toute référence historique vers un snapshot, mapping, fait ou publication doit-elle épingler sa version exacte et ne jamais se résoudre implicitement vers « latest » ou une version supersédante ?
-8. Les contraintes de cohérence entre snapshots doivent-elles bloquer une publication ou analyse canonique lorsque les cartes, formats, régions, banlists ou provenances épinglés sont incompatibles ou non publiés ?
-9. Les identifiants et objets historiques référencés doivent-ils être non réutilisables et non supprimables physiquement au niveau logique, l'absence dans un nouveau snapshot restant distincte d'une suppression ?
-10. Toute collision, référence pendante, unicité violée ou réattribution externe doit-elle être mise en quarantaine et revue, sans fusion, redirection ou réparation implicite ?
-11. Un résultat reproductible doit-il conserver les identifiants exacts de `CatalogueSnapshot`, `FormatSnapshot`, `RegionalScope`, `BanlistSnapshot`, l'instant d'analyse et la lignée des publications contributrices ?
+1. Les entités durables (`Card`, `Archetype`, `Format`, `RegionalScope`, `Banlist`, `DataSource`) utilisent des identifiants internes générés, immuables et jamais réutilisés, distincts des clés métier et identifiants externes.
+2. Chaque snapshot, capture, publication, fait, annotation et relation possède sa propre identité immuable lorsque l'objet constitue une assertion ou une occurrence versionnée identifiable. Une nouvelle version ne réutilise jamais l'identité précédente.
+3. Les identités composites de `CardSnapshot`, `CardLocalization`, `CardAvailability`, `CardArchetypeMembership` et `BanlistEntry` restent des invariants métier normatifs. Une future clé technique ne supprime jamais leur contrainte d'unicité conceptuelle.
+4. Les identifiants YGOPRODeck, passcodes et autres références externes restent typés, sourcés et versionnés. Ils ne remplacent jamais `card_id` ; toute collision ou réattribution incohérente est mise en quarantaine sans réconciliation silencieuse.
+5. Les codes métier explicitement définis comme stables, notamment `format_code`, `scope_code` et `source_code`, peuvent être des clés candidates uniques et non recyclables, distinctes des identifiants internes.
+6. `FunctionalAnnotation` et `CardRelation` possèdent chacune une identité immuable propre, indépendante d'un simple hash ou contenu mutable. Les contraintes empêchant les doublons conceptuels restent séparées de cette identité technique.
+7. Toute référence historique épingle explicitement la version et le contexte exacts. Aucune résolution implicite vers `latest`, l'état courant ou une version supersédante n'est autorisée.
+8. Toute incompatibilité de contexte ou de snapshots bloque la publication ou l'analyse canonique concernée et produit une anomalie explicite et traçable.
+9. Les identités historiques référencées ne sont jamais réutilisées. Leur destruction physique ne peut pas rendre impossible la reproduction d'un contexte publié ; l'absence dans un nouveau snapshot ne constitue pas une suppression historique.
+10. Toute collision d'identifiant, violation d'unicité, référence pendante ou incohérence est mise en quarantaine. Aucune réparation implicite ni stratégie « last value wins » n'est admise.
+11. Tout résultat reproductible conserve les identifiants exacts de `FormatSnapshot`, `RegionalScope`, `CatalogueSnapshot`, `BanlistSnapshot`, l'instant d'analyse et, lorsque pertinent, les publications et provenances contributrices. Une référence historique n'est jamais recalculée depuis l'état courant.
 
 ## 15. Status
 
-D-018 reste **Proposed**. Aucun choix de clé physique, de type SQL, d'index, de moteur de base de données ou d'ORM n'est effectué.
+D-018 est **Accepted**. Aucun choix de clé physique, de type SQL, d'index, de moteur de base de données ou d'ORM n'est effectué.
 
 ## Exclusions
 
