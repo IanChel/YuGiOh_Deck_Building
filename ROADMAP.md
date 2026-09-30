@@ -25,8 +25,8 @@
 | Élément | État |
 |---|---|
 | Phase actuelle | **Transition Phase 0 → Phase 1 — Données** ; conception techniquement validée, implémentation non commencée |
-| Tâche en cours | Préparer le dictionnaire de données et le schéma logique de Phase 1 |
-| Prochaine tâche | Définir la stratégie d'évolution de schéma sans modifier les snapshots publiés |
+| Tâche en cours | Revoir D-020 — stratégie d'évolution du schéma et compatibilité historique |
+| Prochaine tâche | Valider D-020 avant de produire le dictionnaire de données revu |
 | Blocages | D-008 juridique bloque toute publication/distribution ; aucun blocage D-009 ne subsiste pour la spécification de Phase 1 |
 | Décisions récentes | D-001 à D-007 et D-009 à D-019 acceptées ; D-019 fixe les chemins d'accès logiques, recherches multilingues, jointures critiques et pagination déterministe |
 
@@ -1269,7 +1269,7 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | [x] | **D-017 — Comment tracer la provenance et publier les données validées ?** | Modèle fournisseur direct ; provenance agrégée ; chaîne source→capture→fait→publication | **Accepté :** `DataSource`, `DataSnapshot`, `ImportedFact` et `PublishedDataset` distincts, mappings versionnés et lignée par valeur | Autorité par domaine ; conflits conservés ; quarantaine explicite ; `PublishedDataset` séparé de `CatalogueSnapshot` |
 | [x] | **D-018 — Quelles identités et contraintes garantissent l'intégrité du schéma logique ?** | Clés fournisseurs ; clés substitutives seules ; identités stables et contraintes composites | **Accepté :** IDs internes immuables, références externes versionnées, unicités contextuelles et références exactes aux snapshots | Aucun recyclage, aucune résolution implicite vers `latest`, collisions et incohérences en quarantaine |
 | [x] | **D-019 — Quels chemins d'accès et index logiques sont nécessaires ?** | Indexer chaque champ ; choisir un moteur maintenant ; définir les accès avant la technologie | **Accepté :** recherche multilingue par snapshot, filtres structurés, parcours d'archétype, jointures de légalité/provenance et tri déterministe | Types d'index, moteurs spécialisés et pagination physique différés jusqu'aux mesures réelles |
-| [ ] | **D-020 — Quel outil de typage Python ?** | mypy ; pyright | Petit spike puis un seul outil en CI | Évite les configurations concurrentes ; impact limité sur l'architecture |
+| [ ] | **D-020 — Comment faire évoluer le schéma sans réécrire les snapshots publiés ?** | Migrer tout vers le courant ; snapshot par migration ; contrats versionnés compatibles | **Proposé :** versions indépendantes, changements classifiés, adaptateurs historiques, migrations traçables et republication pour tout changement métier | Validation humaine requise ; outil de migration et stratégie physique restent différés |
 | [ ] | **D-021 — Quelle solution d'observabilité ?** | Sentry ; fournisseur cloud ; stack OpenTelemetry | Instrumentation OpenTelemetry, backend choisi avant staging | Préserver la portabilité sans retarder le domaine |
 | [ ] | **D-022 — Comptes après MVP ?** | Auth interne ; OAuth/OIDC ; service managé | OIDC/service managé à évaluer seulement lorsque la sauvegarde cloud est priorisée | La persistance locale suffit à la validation initiale |
 
@@ -1328,3 +1328,4 @@ Les décisions ci-dessous sont **ouvertes**. La colonne « recommandation » dé
 | 2026-09-30 | Validation de D-018 : identités, intégrité logique et références historiques ; ADR-0018 passé à `Accepted` | Terminé |
 | 2026-09-30 | Proposition D-019 : chemins d'accès, recherche multilingue, jointures critiques et décisions physiques différées | En attente de validation humaine |
 | 2026-09-30 | Validation de D-019 : stratégie d'accès logique et décisions physiques différées ; ADR-0019 passé à `Accepted` | Terminé |
+| 2026-09-30 | Proposition D-020 : évolution du schéma, compatibilité historique, migrations et rollbacks conceptuels | En attente de validation humaine |
