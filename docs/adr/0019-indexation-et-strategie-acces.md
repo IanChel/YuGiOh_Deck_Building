@@ -2,13 +2,13 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
 Le modèle versionné doit servir la recherche multilingue, les filtres contrôlés, les parcours d'archétype, la future validation de légalité et l'audit de provenance. Sans stratégie d'accès explicite, une implémentation pourrait mélanger les snapshots, résoudre par des noms instables, multiplier les requêtes par carte ou choisir prématurément une technologie de recherche.
 
-## Proposed decision
+## Decision
 
 - définir les index logiques à partir de chemins d'accès fonctionnels, sans choisir leur réalisation physique ;
 - ancrer toute recherche de contenu de carte dans un `CatalogueSnapshot` et une langue ;
@@ -25,7 +25,7 @@ Le modèle versionné doit servir la recherche multilingue, les filtres contrôl
 - imposer un tri total déterministe pour la pagination ;
 - différer tout choix B-tree, GIN, GiST, trigramme, full-text ou moteur externe jusqu'à mesures réelles.
 
-La proposition complète et ses questions de validation sont décrites dans [`docs/specifications/d019-indexation-et-strategie-acces.md`](../specifications/d019-indexation-et-strategie-acces.md).
+La spécification complète et les décisions validées sont décrites dans [`docs/specifications/d019-indexation-et-strategie-acces.md`](../specifications/d019-indexation-et-strategie-acces.md).
 
 ## Consequences
 

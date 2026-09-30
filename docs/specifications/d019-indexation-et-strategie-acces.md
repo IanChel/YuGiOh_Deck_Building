@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed — validation humaine requise.**
+**Accepted — validée le 2026-09-30.**
 
 Cette spécification définit les chemins d'accès fonctionnels du modèle logique. Elle ne choisit aucun type d'index PostgreSQL, moteur de recherche, partitionnement, SQL, migration ou implémentation physique.
 
@@ -451,24 +451,24 @@ Elle devra démontrer qu'elle respecte les identités, snapshots et règles de p
 | Valeur `UNKNOWN` | Ne satisfait pas un filtre positif |
 | Provenance supprimée logiquement | Ancienne lignée reste accessible par identifiant historique |
 
-## 17. Validation questions
+## 17. Final decisions
 
-1. Les recherches exactes de noms doivent-elles être ancrées par `(CatalogueSnapshot, langue, forme normalisée)`, retourner toutes les collisions et distinguer la valeur officielle de la clé normalisée ?
-2. La résolution française doit-elle charger les localisations française et anglaise du même snapshot, appliquer le fallback champ par champ et exposer la langue réellement servie ?
-3. Les alias doivent-ils disposer de chemins d'accès séparés des noms officiels, avec contexte de validité et ambiguïtés retournées plutôt que résolues automatiquement ?
-4. Les recherches exacte, préfixe, partielle et textuelle doivent-elles rester des modes distincts, toute technologie full-text ou spécialisée étant différée jusqu'à mesure du besoin ?
-5. Les filtres contrôlés et multi-valués doivent-ils toujours être ancrés dans un `CatalogueSnapshot` et expliciter leurs opérateurs, notamment `AND`/`OR`, `UNKNOWN` et `NOT_APPLICABLE` ?
-6. `CardArchetypeMembership` doit-elle offrir les deux parcours `(card, snapshot) → archetypes` et `(archetype, snapshot) → cards`, sans utiliser le texte ou les relations stratégiques comme substitut ?
-7. La future validation de légalité doit-elle disposer d'accès par lot aux représentations, disponibilités et entrées de banlist dans un contexte épinglé, l'absence d'entrée n'étant interprétable que pour une banlist complète ?
-8. La provenance doit-elle être parcourable dans les deux sens par identifiants immuables, de la valeur publiée à la source et du fait aux publications, sans jointure fondée sur du texte ?
-9. Une recherche combinée doit-elle produire/intersecter des candidats dans un même snapshot et maintenir une séparation explicite entre recherche linguistique, filtres structurés et annotations revues ?
-10. Les contraintes d'unicité D-018 doivent-elles disposer des accès logiques nécessaires à leur contrôle sans imposer un index isolé pour chaque colonne ?
-11. Toute requête historique doit-elle recevoir les identifiants exacts de snapshots/région et interdire une résolution implicite vers une vue actuelle ?
-12. Toute pagination doit-elle épingler son contexte et utiliser un ordre total déterministe, par exemple nom résolu normalisé puis `card_id`, tout choix physique de pagination restant différé ?
+1. Les recherches exactes sont ancrées dans un `CatalogueSnapshot` précis. Pour les localisations, la langue et la forme normalisée versionnée font partie du contexte ; toutes les collisions restent visibles et la valeur officielle demeure distincte de sa clé d'accès.
+2. Le fallback français → anglais charge uniquement les localisations du même `CatalogueSnapshot`, s'applique champ par champ et expose la langue réellement servie. Aucun autre snapshot n'est consulté implicitement.
+3. Les alias disposent de chemins de résolution distincts des noms officiels, respectent leur contexte de validité et retournent explicitement toute ambiguïté sans sélection arbitraire.
+4. Les modes exact, préfixe, partiel et textuel restent distincts. Aucun mode n'est implicitement assimilé à un autre et toute technologie spécialisée reste différée jusqu'à mesure du besoin.
+5. Les filtres structurés utilisent les vocabulaires contrôlés, un `CatalogueSnapshot` explicite et des opérateurs déclarés, notamment pour `AND`/`OR`, `UNKNOWN` et `NOT_APPLICABLE`. Une valeur inconnue n'est jamais assimilée à une valeur connue.
+6. `CardArchetypeMembership` offre les parcours `(card, snapshot) → archetypes` et `(archetype, snapshot) → cards`. Le snapshot est obligatoire et ni le texte ni les relations stratégiques ne remplacent ce membership.
+7. Les résolutions de cartes et contrôles futurs de légalité fonctionnent par lots dans un contexte épinglé `FormatSnapshot + RegionalScope + CatalogueSnapshot + BanlistSnapshot`. L'absence d'entrée n'est interprétable que pour une banlist complète.
+8. La provenance est parcourable dans les deux sens par identifiants immuables, de la valeur publiée à la source et du fait aux publications, sans dépendre de recherches textuelles.
+9. Les recherches combinées produisent et intersectent leurs candidats dans un même `CatalogueSnapshot`, avec séparation explicite entre recherche linguistique, filtres structurés et annotations revues. Aucun mélange implicite de snapshots n'est admis.
+10. Les contraintes d'unicité D-018 disposent des chemins d'accès logiques nécessaires à leur vérification et résolution, sans imposer un index physique par colonne ou contrainte.
+11. Toute requête historique fournit ou résout explicitement les identifiants exacts de son contexte. Aucune résolution implicite vers `latest` ou une vue actuelle n'est autorisée.
+12. Toute pagination épingle son contexte de recherche et utilise un ordre total déterministe afin d'éviter doublons et omissions. La stratégie physique de pagination reste différée.
 
 ## 18. Status
 
-D-019 reste **Proposed**. Aucun index physique, moteur de recherche, SQL, migration ou dépendance technique n'est décidé.
+D-019 est **Accepted**. Aucun index physique, moteur de recherche, SQL, migration ou dépendance technique n'est décidé.
 
 ## Exclusions
 
