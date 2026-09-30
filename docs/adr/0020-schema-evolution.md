@@ -2,13 +2,13 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
 Le modèle évoluera après la publication de snapshots et de résultats historiques. Sans stratégie explicite, une migration technique pourrait réinterpréter des valeurs anciennes, modifier des identifiants, appliquer un mapping courant à une publication passée ou rendre un snapshot illisible.
 
-## Proposed decision
+## Decision
 
 - distinguer les versions de schéma, données métier, snapshots, publications, mappings et vocabulaires ;
 - rattacher chaque publication à un contrat d'interprétation et une version de schéma immuables ;
@@ -20,12 +20,13 @@ Le modèle évoluera après la publication de snapshots et de résultats histori
 - produire une nouvelle publication et, si nécessaire, un nouveau snapshot lorsqu'une nouvelle interprétation métier est introduite ;
 - préserver tous les identifiants internes et codes historiques pendant les migrations ;
 - exiger des migrations vérifiables, sans état partiel activé comme canonique ;
+- permettre la quarantaine des données non transformables et différer le mécanisme concret d'idempotence ou de reprise à l'implémentation ;
 - distinguer rollback de code, schéma, publication et supersession de snapshot ;
 - permettre des transitions progressives avec source canonique et matrice de compatibilité explicites ;
 - tester la reproductibilité historique, la provenance et les invariants D-018 avant activation ;
 - différer le choix de l'outil et de l'implémentation des migrations.
 
-La proposition complète et ses questions de validation sont décrites dans [`docs/specifications/d020-schema-evolution.md`](../specifications/d020-schema-evolution.md).
+La décision complète et ses douze décisions de validation sont décrites dans [`docs/specifications/d020-schema-evolution.md`](../specifications/d020-schema-evolution.md).
 
 ## Consequences
 

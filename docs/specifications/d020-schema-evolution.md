@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed — validation humaine requise.**
+**Accepted.**
 
 Cette spécification définit les invariants architecturaux d'évolution du modèle et du schéma. Elle ne crée aucune migration, aucun SQL, aucun fichier Alembic, aucun code applicatif et ne modifie aucun snapshot existant.
 
@@ -113,6 +113,13 @@ Une migration physique peut déplacer ou réencoder des données historiques uni
 ## 5. Compatible changes
 
 D-020 classe les évolutions en quatre catégories logiques.
+
+| Catégorie | Données existantes | Snapshots publiés | Compatibilité applicative | Migration | Nouvelle représentation |
+|---|---|---|---|---|---|
+| `Additive` | Conservées ; aucune valeur rétroactive inventée | Inchangés ; l'absence historique reste interprétée selon l'ancien contrat | Les anciens lecteurs peuvent ignorer la capacité si leur profil le permet | Facultative et uniquement technique | Non, sauf si une nouvelle donnée métier est publiée |
+| `Backward-compatible` | Même sens observable et mêmes identités | Inchangés et lisibles par projection ou adaptateur fidèle | Ancien et nouveau contrats peuvent coexister selon la matrice déclarée | Possible si elle est réversible et sémantiquement équivalente | Non si l'équivalence est démontrée |
+| `Requires adaptation` | Transformées seulement par une règle déterministe, vérifiée et traçable | Jamais réinterprétés ; l'ancien contrat reste disponible | Lecteurs et écrivains nécessitent une transition explicitement coordonnée | Requise avant activation canonique | Oui lorsque l'adaptation produit une nouvelle interprétation métier |
+| `Incompatible` | Ancienne forme conservée ou fidèlement reconstructible | Jamais modifiés en place | Ancien lecteur/adaptateur requis pour l'historique ; incompatibilité signalée explicitement | Destructive en place interdite | Oui, avec nouvelle version de contrat et republication si la vérité métier évolue |
 
 ### 5.1 Additive
 
@@ -281,7 +288,7 @@ Toute migration ou transformation de données canoniques respecte les invariants
 5. **Sémantique préservée :** un backfill technique ne change pas le contenu métier observable.
 6. **Atomicité canonique :** un état partiellement migré ne devient jamais la version canonique active.
 7. **Vérifiabilité :** comptages, contraintes, rapports de différences et échantillons/golden cases sont contrôlés.
-8. **Idempotence ou reprise définie :** une relance ne produit pas de doublons ni d'état ambigu.
+8. **Reprise sûre :** une relance ne produit pas de doublons ni d'état ambigu ; le mécanisme concret d'idempotence ou de reprise reste une décision d'implémentation future.
 9. **Quarantaine :** les cas non transformables sont isolés et empêchent l'activation lorsque bloquants.
 10. **Historique reconstructible :** toute transformation destructive conserve l'ancienne forme ou une preuve suffisante pour la reconstruire fidèlement.
 
@@ -386,24 +393,24 @@ Aucun outil de migration, format de numéro ou technologie de registre n'est cho
 | Valeur dépréciée dans un historique | Toujours lisible avec son vocabulaire épinglé |
 | Index physique remplacé | Aucun effet métier si les accès D-019 et résultats restent équivalents |
 
-## 18. Validation questions
+## 18. Final validation decisions
 
-1. Les versions de schéma, donnée métier, snapshot, publication, mapping et vocabulaire doivent-elles rester indépendantes, une migration technique ne créant jamais automatiquement un nouveau snapshot métier ?
-2. Tout snapshot publié doit-il conserver son contenu et son sens observables après migration, avec lecteur/adaptateur historique lorsque la représentation courante ne suffit plus ?
-3. Un changement additif doit-il laisser les anciens champs absents plutôt que d'inventer une valeur, et une nouvelle donnée métier doit-elle passer par une nouvelle publication ?
-4. Toute suppression, fusion, séparation ambiguë, réduction de cardinalité ou modification sémantique doit-elle être interdite en place pour les snapshots publiés et introduire une nouvelle représentation versionnée ?
-5. Les valeurs de vocabulaire dépréciées doivent-elles rester interprétables historiquement, tout ajout ou remplacement produisant une nouvelle version sans réaffecter les anciens identifiants ?
-6. Tout changement de mapping externe doit-il créer une nouvelle version et, pour modifier une donnée canonique existante, une nouvelle publication/snapshot plutôt qu'une réinterprétation rétroactive ?
-7. Toute évolution de relation doit-elle préserver l'ancien contrat et ses assertions, les changements de cible, cardinalité ou sens utilisant une nouvelle version explicite ?
-8. Les identifiants internes et codes historiques doivent-ils rester immuables et non recyclables pendant toute migration, un changement d'identifiant externe ne créant jamais automatiquement une nouvelle `Card` ?
-9. Toute migration de données doit-elle être déterministe, traçable, vérifiable et atomique du point de vue canonique, avec quarantaine des cas non transformables et conservation de la provenance ?
-10. Les rollbacks de code, schéma, publication et snapshot doivent-ils rester distincts, aucun rollback technique ne supprimant ou modifiant un snapshot publié ?
-11. Les composants applicatifs doivent-ils déclarer une matrice de compatibilité lecture/écriture et utiliser, selon le risque, une transition progressive validée avant activation ?
-12. Chaque publication doit-elle épingler sa `schema_version_ref` et son contrat d'interprétation, une version utilisée historiquement ne pouvant jamais changer de sens ?
+1. Les versions de schéma, données métier, snapshots, publications, mappings et vocabulaires sont indépendantes et ne sont jamais implicitement déduites les unes des autres.
+2. Un snapshot publié conserve son contenu et son sens observables ; une migration de schéma ne modifie jamais le snapshot métier.
+3. Une évolution additive n'invente aucune valeur historique : l'absence reste une absence, `UNKNOWN` ou `NOT_APPLICABLE` selon la sémantique applicable.
+4. Une suppression, fusion, séparation ou modification sémantique altérant l'interprétation historique introduit une nouvelle représentation ou version, tandis que l'ancien contrat reste interprétable lorsque la reproductibilité l'exige.
+5. Les anciennes valeurs de vocabulaire restent interprétables dans leur contexte ; leur dépréciation ou évolution ne réécrit aucun snapshot antérieur.
+6. Un mapping modifiant potentiellement la donnée canonique produit une nouvelle transformation/publication, et sa version historique reste identifiable et traçable.
+7. Une évolution de relation ne réécrit aucune assertion historique ; l'ancien contrat reste identifiable pour les données qu'il a produites.
+8. Les identifiants historiques restent immuables et non recyclables conformément à D-018 ; une évolution de schéma ne crée pas artificiellement une nouvelle identité.
+9. Une migration de données est déterministe, traçable, vérifiable et atomique du point de vue canonique ; les cas non transformables sont mis en quarantaine, tandis que le mécanisme concret d'idempotence ou de reprise est différé.
+10. Rollback technique, rollback de publication et correction ou supersession métier sont distincts ; aucun rollback technique ne supprime ou ne modifie silencieusement un snapshot publié.
+11. Les composants concernés déclarent explicitement leur compatibilité de lecture et d'écriture ; les mécanismes concrets restent différés à l'implémentation.
+12. Chaque publication est rattachable à la version de schéma et au contrat d'interprétation nécessaires à sa lecture et à sa reproduction, sans résolution implicite vers la version courante.
 
 ## 19. Status
 
-D-020 reste **Proposed**. Aucun outil de migration, SQL, schéma physique, code applicatif ou modification de snapshot n'est produit.
+D-020 est **Accepted**. Aucun outil de migration, SQL, schéma physique, code applicatif ou modification de snapshot n'est produit.
 
 ## Exclusions
 
